@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPLIFE — Try Another You</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Serif+TC:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black: #05070D;
+  --deep: #080C18;
+  --mid: #0D1424;
+  --ink: #E8EEF8;
+  --ink-dim: #8899BB;
+  --cyan: #00D4FF;
+  --cyan-glow: rgba(0,212,255,0.4);
+  --purple: #8B5CF6;
+  --gold: #F59E0B;
+  --gold-glow: rgba(245,158,11,0.3);
+  --white: #F0F6FF;
+  --vh: 100vh;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--black);
+  cursor: default;
+}
+
+/* ══════════════════════════════════
+   STARFIELD
+══════════════════════════════════ */
+#stars {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -10%, rgba(0,212,255,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 85% 85%, rgba(139,92,246,0.07) 0%, transparent 50%),
+    var(--black);
+  pointer-events: none;
+}
+#stars::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 8%  12%, rgba(255,255,255,0.7) 0%,transparent 100%),
+    radial-gradient(1px 1px at 22% 48%, rgba(255,255,255,0.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 8%, rgba(0,212,255,0.9) 0%,transparent 100%),
+    radial-gradient(1px 1px at 73% 62%, rgba(255,255,255,0.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 18% 78%, rgba(139,92,246,0.8) 0%,transparent 100%),
+    radial-gradient(1px 1px at 91% 22%, rgba(255,255,255,0.45) 0%,transparent 100%),
+    radial-gradient(1px 1px at 38% 88%, rgba(255,255,255,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 65% 35%, rgba(0,212,255,0.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 48% 55%, rgba(255,255,255,0.35) 0%,transparent 100%),
+    radial-gradient(1px 1px at 82% 75%, rgba(139,92,246,0.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 5%  40%, rgba(255,255,255,0.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 95% 50%, rgba(0,212,255,0.4) 0%,transparent 100%);
+}
+
+/* ══════════════════════════════════
+   HORIZONTAL SCROLL TRACK
+══════════════════════════════════ */
+#track {
+  position: fixed; inset: 0; z-index: 1;
+  display: flex;
+  transition: transform 0.75s cubic-bezier(0.77,0,0.18,1);
+  will-change: transform;
+}
+
+/* ══════════════════════════════════
+   EACH PAGE (full viewport width)
+══════════════════════════════════ */
+.page {
+  flex: 0 0 100vw;
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Left-text / Right-image layout */
+.page.split { grid-template-columns: 44% 56%; }
+
+/* Full-bleed (cover / outro) */
+.page.full  { grid-template-columns: 1fr; }
+
+/* ══════════════════════════════════
+   LEFT PANEL — TEXT
+══════════════════════════════════ */
+.p-left {
+  background: var(--deep);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(36px,6vh,72px) clamp(32px,4vw,64px) clamp(36px,6vh,72px) clamp(40px,5vw,80px);
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid rgba(0,212,255,0.07);
+}
+.p-left::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 90% 60% at -10% 50%, rgba(0,212,255,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+.p-left::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,212,255,0.011) 3px, rgba(0,212,255,0.011) 4px
+  );
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════
+   RIGHT PANEL — IMAGE
+══════════════════════════════════ */
+.p-right {
+  position: relative;
+  overflow: hidden;
+  background: var(--mid);
+}
+.p-right img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 12s ease;
+}
+.page.active .p-right img { transform: scale(1.06); }
+.p-right::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(270deg, transparent 40%, rgba(8,12,24,0.55) 100%);
+  pointer-events: none; z-index: 2;
+}
+.img-caption {
+  position: absolute; bottom: 22px; left: 18px;
+  font-family: 'Orbitron', monospace;
+  font-size: 8px; letter-spacing: 0.3em;
+  color: rgba(0,212,255,0.45);
+  text-transform: uppercase;
+  writing-mode: vertical-rl; z-index: 5;
+}
+
+/* ══════════════════════════════════
+   TEXT ELEMENTS
+══════════════════════════════════ */
+.chapter-label {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(8px,1vw,10px);
+  letter-spacing: 0.45em;
+  color: var(--cyan);
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.text-body {
+  flex: 1;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  gap: clamp(12px,2vh,20px);
+  padding: clamp(10px,2vh,22px) 0;
+}
+.page-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: clamp(17px,2.6vw,30px);
+  font-weight: 400; line-height: 1.45;
+  color: var(--white); letter-spacing: 0.04em;
+}
+.page-title em { font-style: normal; color: var(--cyan); }
+.title-en {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(8px,0.9vw,11px);
+  letter-spacing: 0.22em;
+  color: rgba(0,212,255,0.42);
+  margin-top: -4px; text-transform: uppercase;
+}
+.divider {
+  display: flex; align-items: center; gap: 8px;
+}
+.divider::before {
+  content: ''; width: 28px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--cyan));
+}
+.divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(to right, rgba(0,212,255,0.18), transparent);
+}
+.divider-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 6px var(--cyan);
+}
+.page-text {
+  font-family: 'Noto Serif TC', serif;
+  font-size: clamp(11px,1.35vw,14px);
+  line-height: 2.05; color: var(--ink-dim);
+  font-weight: 300; letter-spacing: 0.05em;
+}
+.page-text.en-body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(11px,1.2vw,13.5px);
+  line-height: 1.95; letter-spacing: 0.02em;
+}
+.page-text strong { color: var(--ink); font-weight: 500; }
+.page-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(7px,0.85vw,9px); letter-spacing: 0.15em;
+  color: var(--purple); border: 1px solid rgba(139,92,246,0.28);
+  padding: 4px 10px; border-radius: 2px; text-transform: uppercase;
+  align-self: flex-start; background: rgba(139,92,246,0.05);
+}
+.page-tag::before { content: '◆'; font-size: 5px; }
+.page-footer {
+  display: flex; justify-content: space-between; align-items: flex-end;
+}
+.page-num {
+  font-family: 'Orbitron', monospace; font-size: 10px;
+  color: rgba(0,212,255,0.22); letter-spacing: 0.3em;
+}
+.price-tag {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(11px,1.4vw,15px);
+  color: var(--gold); text-shadow: 0 0 12px var(--gold-glow);
+  letter-spacing: 0.05em;
+}
+
+/* ══════════════════════════════════
+   COVER PAGE
+══════════════════════════════════ */
+.cover-bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; opacity: 0.52;
+}
+.cover-overlay {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 65%),
+    linear-gradient(to bottom, rgba(5,7,13,0.25), rgba(5,7,13,0.72));
+  z-index: 2;
+}
+.cover-content {
+  position: relative; z-index: 3;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; gap: clamp(14px,2.5vh,26px); text-align: center;
+  padding: 40px;
+}
+.cover-brand {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(36px,7vw,88px);
+  font-weight: 900; color: var(--white); letter-spacing: 0.18em;
+  text-shadow: 0 0 40px rgba(0,212,255,0.55), 0 0 80px rgba(0,212,255,0.25);
+}
+.cover-brand span { color: var(--cyan); }
+.cover-tagline {
+  font-family: 'Noto Serif TC', serif;
+  font-size: clamp(14px,2.2vw,22px);
+  color: rgba(240,246,255,0.68); letter-spacing: 0.14em; font-weight: 300;
+}
+.cover-tagline-en {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(14px,1.8vw,20px);
+  color: rgba(240,246,255,0.68); letter-spacing: 0.14em; font-weight: 300;
+  font-style: italic;
+}
+.cover-line {
+  width: 80px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--cyan), transparent);
+  box-shadow: 0 0 10px var(--cyan);
+}
+.cover-sub {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(8px,1vw,11px); letter-spacing: 0.4em;
+  color: rgba(0,212,255,0.5); text-transform: uppercase;
+  animation: flicker 3.2s ease-in-out infinite;
+}
+@keyframes flicker {
+  0%,100%{opacity:.5} 50%{opacity:1} 52%{opacity:.35} 54%{opacity:1}
+}
+
+/* ══════════════════════════════════
+   OUTRO PAGE
+══════════════════════════════════ */
+.outro-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 25% 50%, rgba(0,212,255,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 70% at 80% 50%, rgba(139,92,246,0.09) 0%,transparent 60%),
+    var(--deep);
+  z-index: 0;
+}
+.outro-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; gap: clamp(14px,2.5vh,24px);
+  text-align: center; padding: 40px 60px; max-width: 720px; margin: 0 auto;
+}
+.outro-brand {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(9px,1.2vw,13px); letter-spacing: 0.45em;
+  color: rgba(0,212,255,0.38); text-transform: uppercase;
+}
+.outro-quote {
+  font-family: 'Noto Serif TC', serif;
+  font-size: clamp(16px,2.4vw,26px);
+  color: var(--white); font-weight: 300;
+  line-height: 1.9; letter-spacing: 0.08em;
+}
+.outro-quote.en-body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(15px,2vw,22px);
+  line-height: 1.75; letter-spacing: 0.02em; font-style: italic;
+}
+.outro-quote em { font-style: normal; color: var(--cyan); }
+.price-display {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(22px,3.5vw,40px);
+  color: var(--gold); text-shadow: 0 0 24px var(--gold-glow);
+  letter-spacing: 0.1em;
+}
+.buy-btn {
+  display: inline-block;
+  padding: clamp(10px,1.6vh,16px) clamp(28px,4vw,52px);
+  background: transparent; border: 1px solid var(--cyan);
+  color: var(--cyan); font-family: 'Orbitron', monospace;
+  font-size: clamp(9px,1vw,12px); letter-spacing: 0.3em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer; transition: all 0.3s ease;
+  box-shadow: 0 0 22px rgba(0,212,255,0.1), inset 0 0 22px rgba(0,212,255,0.05);
+  position: relative; overflow: hidden;
+}
+.buy-btn:hover {
+  box-shadow: 0 0 44px rgba(0,212,255,0.32), inset 0 0 32px rgba(0,212,255,0.1);
+  color: var(--white);
+}
+
+/* ══════════════════════════════════
+   LANGUAGE TOGGLE — bottom right
+══════════════════════════════════ */
+#lang-toggle {
+  position: fixed; bottom: 28px; right: 28px;
+  z-index: 200;
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid rgba(0,212,255,0.25);
+  border-radius: 3px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  background: rgba(5,7,13,0.65);
+  box-shadow: 0 0 20px rgba(0,212,255,0.06);
+}
+.lang-btn {
+  padding: 7px 14px;
+  font-family: 'Orbitron', monospace;
+  font-size: 10px; letter-spacing: 0.2em;
+  color: rgba(0,212,255,0.4);
+  background: transparent; border: none; cursor: pointer;
+  transition: all 0.25s;
+  text-transform: uppercase;
+}
+.lang-btn.active {
+  background: rgba(0,212,255,0.12);
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+}
+.lang-divider {
+  width: 1px; height: 20px;
+  background: rgba(0,212,255,0.18);
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════
+   NAVIGATION ARROWS
+══════════════════════════════════ */
+#nav {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 16px; z-index: 200;
+}
+.nav-btn {
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid rgba(0,212,255,0.18);
+  background: rgba(5,7,13,0.7); backdrop-filter: blur(10px);
+  color: var(--cyan); font-size: 17px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s; -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 0 16px rgba(0,212,255,0.05);
+}
+.nav-btn:hover:not(:disabled) {
+  background: rgba(0,212,255,0.1);
+  border-color: rgba(0,212,255,0.48);
+  box-shadow: 0 0 28px rgba(0,212,255,0.2); transform: scale(1.1);
+}
+.nav-btn:disabled { opacity: 0.18; cursor: default; transform: none; }
+#page-indicator {
+  font-family: 'Orbitron', monospace; font-size: 10px;
+  color: rgba(0,212,255,0.38); letter-spacing: 0.25em;
+  min-width: 82px; text-align: center; text-transform: uppercase;
+}
+
+/* ══════════════════════════════════
+   PROGRESS DOTS — top center
+══════════════════════════════════ */
+#dots {
+  position: fixed; top: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 10px; z-index: 200;
+}
+.dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(0,212,255,0.18); cursor: pointer;
+  transition: all 0.3s;
+}
+.dot.active {
+  background: var(--cyan); box-shadow: 0 0 8px var(--cyan); transform: scale(1.5);
+}
+
+/* ══════════════════════════════════
+   HINT
+══════════════════════════════════ */
+#hint {
+  position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%);
+  font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 0.3em;
+  color: rgba(0,212,255,0.22); text-transform: uppercase; z-index: 200;
+  transition: opacity 1.2s; white-space: nowrap;
+}
+#hint.gone { opacity: 0; pointer-events: none; }
+
+/* ══════════════════════════════════
+   LANGUAGE VISIBILITY
+══════════════════════════════════ */
+.zh { display: block; }
+.en { display: none; }
+body.lang-en .zh { display: none; }
+body.lang-en .en { display: block; }
+/* inline variants */
+span.zh { display: inline; }
+span.en { display: none; }
+body.lang-en span.zh { display: none; }
+body.lang-en span.en { display: inline; }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<!-- ═══════════════════════════════════════════
+     HORIZONTAL TRACK
+═══════════════════════════════════════════ -->
+<div id="track">
+
+  <!-- ════ PAGE 0: COVER ════ -->
+  <div class="page full active" id="page-0">
+    <img class="cover-bg" src="/mnt/user-data/uploads/IMG_4932.png" alt="CAPLIFE universe">
+    <div class="cover-overlay"></div>
+    <div class="cover-content">
+      <div class="cover-brand">CAP<span>LIFE</span></div>
+      <div class="cover-tagline zh">如果人生可以重來，你敢試嗎？</div>
+      <div class="cover-tagline-en en">If You Could Live Another Life — Would You Dare?</div>
+      <div class="cover-line"></div>
+      <div class="cover-sub zh">翻開故事 · 向右滑動</div>
+      <div class="cover-sub en">Scroll to Begin · Try Another You</div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 1: 志明的日常 ════ -->
+  <div class="page split" id="page-1">
+    <div class="p-left">
+      <div class="chapter-label zh">· 第一章 ·</div>
+      <div class="chapter-label en">· Chapter 01 ·</div>
+      <div class="text-body">
+        <div>
+          <div class="page-title zh">台北，<em>每一天</em>都像前一天</div>
+          <div class="page-title en">Taipei — <em>Every Day</em><br>Looks Like the Last</div>
+          <div class="title-en">TAIPEI · SAME DAY DIFFERENT DATE</div>
+        </div>
+        <div class="divider"><div class="divider-dot"></div></div>
+        <div class="page-text zh">
+          志明是一個普通的上班族。<br>
+          固定時間醒來，固定路線通勤，<br>
+          固定位子開固定的會。<br><br>
+          生活沒有不好，<br>
+          但有一種感覺，他說不出口——<br>
+          <strong>少了點什麼。</strong><br><br>
+          房貸讓他無法離職，<br>
+          現實讓他無法做夢。<br>
+          直到某一天，他在螢幕上看到<br>
+          一個奇怪的東西。
+        </div>
+        <div class="page-text en-body en">
+          Zhiming is an ordinary office worker.<br>
+          Same alarm. Same commute. Same meetings.<br>
+          Same desk.<br><br>
+          Life wasn't bad.<br>
+          But something was missing —<br>
+          <strong>he just couldn't name it.</strong><br><br>
+          A mortgage kept him from quitting.<br>
+          Reality kept him from dreaming.<br>
+          Until one day, on his screen,<br>
+          he saw something strange.
+        </div>
+        <div class="page-tag">
+          <span class="zh">起源故事 · Day 001</span>
+          <span class="en">Origin Story · Day 001</span>
+        </div>
+      </div>
+      <div class="page-footer">
+        <div class="page-num">01</div>
+      </div>
+    </div>
+    <div class="p-right">
+      <img src="/mnt/user-data/uploads/IMG_4911.jpeg" alt="台北通勤">
+      <div class="img-caption">Taipei · Commute</div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 2: 遇見CAPLIFE ════ -->
+  <div class="page split" id="page-2">
+    <div class="p-left">
+      <div class="chapter-label zh">· 第二章 ·</div>
+      <div class="chapter-label en">· Chapter 02 ·</div>
+      <div class="text-body">
+        <div>
+          <div class="page-title zh">一頂帽子，<br>標語寫著 <em>「Try Another You」</em></div>
+          <div class="page-title en">A Cap.<br>Tagged with <em>"Try Another You."</em></div>
+          <div class="title-en">THE CAP · NT$88,888</div>
+        </div>
+        <div class="divider"><div class="divider-dot"></div></div>
+        <div class="page-text zh">
+          那句話，像是在問他<br>
+          一個不敢面對的問題。<br><br>
+          <strong>「如果人生可以重來，你要嗎？」</strong><br><br>
+          他原本覺得——騙人的吧？<br>
+          該不會又是AI生成的廣告？<br><br>
+          但看看價錢，$88,888。<br>
+          帶著半信半疑，<br>
+          他把帽子買了回家。
+        </div>
+        <div class="page-text en-body en">
+          Those four words felt like a question<br>
+          he'd been too afraid to ask himself.<br><br>
+          <strong>"If I could start over — would I?"</strong><br><br>
+          He almost scrolled past it.<br>
+          Probably AI-generated nonsense, right?<br><br>
+          But at NT$88,888,<br>
+          something made him click.<br>
+          Half-skeptical, he bought it.
+        </div>
+        <div class="page-tag">CAPLIFE · Multiverse Device</div>
+      </div>
+      <div class="page-footer">
+        <div class="page-num">02</div>
+        <div class="price-tag">NT$ 88,888</div>
+      </div>
+    </div>
+    <div class="p-right">
+      <img src="/mnt/user-data/uploads/AE7D5360-38B0-4FC1-81B2-498EEF742B6F.png" alt="CAPLIFE product">
+      <div class="img-caption">CAPLIFE · Product</div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 3: 包裝開箱 ════ -->
+  <div class="page split" id="page-3">
+    <div class="p-left">
+      <div class="chapter-label zh">· 第三章 ·</div>
+      <div class="chapter-label en">· Chapter 03 ·</div>
+      <div class="text-body">
+        <div>
+          <div class="page-title zh">使用說明書，<br>只有<em>一條規則</em></div>
+          <div class="page-title en">The Manual.<br>Just <em>One Rule.</em></div>
+          <div class="title-en">INSTRUCTION · OPEN BOX</div>
+        </div>
+        <div class="divider"><div class="divider-dot"></div></div>
+        <div class="page-text zh">
+          包裝盒打開，說明書就一頁。<br><br>
+          <strong>睡前戴上，想像不同的人生。</strong><br><br>
+          不需要設定，不需要 App，<br>
+          不需要你相信它。<br><br>
+          只需要閉上眼睛。<br><br>
+          而且這些不是夢——<br>
+          <strong>是你真實活過的一天。</strong>
+        </div>
+        <div class="page-text en-body en">
+          One box. One cap. One page of instructions.<br><br>
+          <strong>Put it on before sleep.<br>Imagine a different life.</strong><br><br>
+          No app. No settings.<br>
+          No belief required.<br><br>
+          Just close your eyes.<br><br>
+          And these aren't dreams —<br>
+          <strong>they are days you truly lived.</strong>
+        </div>
+        <div class="page-tag">
+          <span class="zh">開箱即用 · Zero Setup</span>
+          <span class="en">Zero Setup · Open &amp; Wear</span>
+        </div>
+      </div>
+      <div class="page-footer">
+        <div class="page-num">03</div>
+      </div>
+    </div>
+    <div class="p-right">
+      <img src="/mnt/user-data/uploads/6497EEA9-89C3-4968-88AE-CAA11E110CDC.png" alt="CAPLIFE packaging">
+      <div class="img-caption">CAPLIFE · Unbox</div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 4: 23:00 入睡 ════ -->
+  <div class="page split" id="page-4">
+    <div class="p-left">
+      <div class="chapter-label zh">· 第四章 ·</div>
+      <div class="chapter-label en">· Chapter 04 ·</div>
+      <div class="text-body">
+        <div>
+          <div class="page-title zh">23:00，<br>戴上帽子，<em>閉上眼睛</em></div>
+          <div class="page-title en">23:00.<br>Cap on. <em>Eyes closed.</em></div>
+          <div class="title-en">SLEEP · BEGIN TRANSMISSION</div>
+        </div>
+        <div class="divider"><div class="divider-dot"></div></div>
+        <div class="page-text zh">
+          他按照說明，在床上躺好，<br>
+          戴上帽子，讓自己想像——<br>
+          一個截然不同的人生。<br><br>
+          沒有倒數，沒有光效，<br>
+          沒有任何提示音。<br><br>
+          但每次醒來，<br>
+          <strong>世界，全都換了。</strong>
+        </div>
+        <div class="page-text en-body en">
+          He followed the instructions.<br>
+          Lay flat. Cap on.<br>
+          Imagined a completely different life.<br><br>
+          No countdown. No light effects.<br>
+          No notification sound.<br><br>
+          But every time he woke up —<br>
+          <strong>the world had changed.</strong>
+        </div>
+        <div class="page-tag">
+          <span class="zh">睡眠模式 · 傳輸中</span>
+          <span class="en">Sleep Mode · Transmitting</span>
+        </div>
+      </div>
+      <div class="page-footer">
+        <div class="page-num">04</div>
+      </div>
+    </div>
+    <div class="p-right">
+      <img src="/mnt/user-data/uploads/95E2E735-3C93-4A0D-BED4-CD9ECC354B19.png" alt="wearing CAPLIFE at night">
+      <div class="img-caption">Night · Session Begin</div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 5: 多重宇宙三個人生 ════ -->
+  <div class="page split" id="page-5">
+    <div class="p-left">
+      <div class="chapter-label zh">· 第五章 ·</div>
+      <div class="chapter-label en">· Chapter 05 ·</div>
+      <div class="text-body">
+        <div>
+          <div class="page-title zh">CEO、遊民、<br>巴黎的<em>午後旅人</em></div>
+          <div class="page-title en">CEO. Homeless man.<br><em>Afternoon wanderer in Paris.</em></div>
+          <div class="title-en">MULTIVERSE · THREE LIVES</div>
+        </div>
+        <div class="divider"><div class="divider-dot"></div></div>
+        <div class="page-text zh">
+          <strong>某天：</strong> 高樓落地窗，合身西裝，<br>
+          整個會議室等他一個人決策。<br>
+          那是一種被需要、也無法出錯的重量。<br><br>
+          <strong>隔天：</strong> 騎樓地板上醒來，<br>
+          世界邊緣，看別人的人生流動。<br>
+          時間變很慢，生存感很真實。<br><br>
+          <strong>再下一次：</strong> 巴黎河畔，咖啡還溫熱，<br>
+          沒有目標，只是坐著看水流。<br>
+          <strong>「存在本身，已經足夠。」</strong>
+        </div>
+        <div class="page-text en-body en">
+          <strong>One day:</strong> Floor-to-ceiling windows. Sharp suit.<br>
+          A boardroom waiting for his single word.<br>
+          The weight of being needed — and never wrong.<br><br>
+          <strong>The next:</strong> Waking on a cold arcade floor.<br>
+          Watching other lives flow past like water.<br>
+          Time moved slowly. Survival felt very real.<br><br>
+          <strong>The day after:</strong> Paris. Warm coffee. No agenda.<br>
+          Just sitting by the river, watching it pass.<br>
+          <strong>"Simply existing — was already enough."</strong>
+        </div>
+        <div class="page-tag">
+          <span class="zh">宇宙 A · B · C</span>
+          <span class="en">Universe A · B · C</span>
+        </div>
+      </div>
+      <div class="page-footer">
+        <div class="page-num">05</div>
+      </div>
+    </div>
+    <div class="p-right">
+      <img src="/mnt/user-data/uploads/IMG_4932.png" alt="multiverse portals">
+      <div class="img-caption">Multiverse · Active</div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 6: 頓悟 ════ -->
+  <div class="page split" id="page-6">
+    <div class="p-left">
+      <div class="chapter-label zh">· 第六章 ·</div>
+      <div class="chapter-label en">· Chapter 06 ·</div>
+      <div class="text-body">
+        <div>
+          <div class="page-title zh">那一天，他醒來，<br><em>還是原本的房間</em></div>
+          <div class="page-title en">That morning, he woke up<br>in <em>his own room.</em></div>
+          <div class="title-en">REVELATION · FINAL SESSION</div>
+        </div>
+        <div class="divider"><div class="divider-dot"></div></div>
+        <div class="page-text zh">
+          他愣了一下。<br>
+          照常出門，走同一條路，開同一個會。<br><br>
+          <strong>一切沒有變。</strong><br>
+          但奇怪的是——<br>
+          他卻感覺一切都不一樣了。<br><br>
+          開會時，多了企業家的果斷；<br>
+          看見路邊的人，多了深刻的理解；<br>
+          吃早餐，竟然像在巴黎河畔一樣安靜。<br><br>
+          <strong>原來，帽子的秘密不是讓你逃離——<br>
+          是讓你把不同的自己，帶回現實。</strong>
+        </div>
+        <div class="page-text en-body en">
+          He blinked. Disoriented.<br>
+          Same road. Same office. Same meeting.<br><br>
+          <strong>Nothing had changed.</strong><br>
+          But strangely —<br>
+          everything felt different.<br><br>
+          In the boardroom, he had a CEO's decisiveness.<br>
+          On the street, he felt a homeless man's empathy.<br>
+          At breakfast, a Parisian calm he'd never known.<br><br>
+          <strong>The cap's secret wasn't escape —<br>
+          it was bringing every version of you back home.</strong>
+        </div>
+        <div class="page-tag">
+          <span class="zh">現實 · 已解鎖</span>
+          <span class="en">Reality · Unlocked</span>
+        </div>
+      </div>
+      <div class="page-footer">
+        <div class="page-num">06</div>
+      </div>
+    </div>
+    <div class="p-right">
+      <img src="/mnt/user-data/uploads/IMG_4927.jpeg" alt="transformed man">
+      <div class="img-caption">The Return · Day 1</div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 7: OUTRO / CTA ════ -->
+  <div class="page full" id="page-7">
+    <div class="outro-bg"></div>
+    <div class="outro-content">
+      <div class="outro-brand">· CAPLIFE ·</div>
+      <div class="cover-line"></div>
+
+      <div class="outro-quote zh">
+        「未知並不可怕，<br>
+        選擇不同的人生，<br>
+        <em>好簡單。</em>」
+      </div>
+      <div class="outro-quote en-body en">
+        "The unknown isn't frightening.<br>
+        Choosing a different life<br>
+        <em>is easier than you think.</em>"
+      </div>
+
+      <div class="price-display">NT$ 88,888</div>
+      <a class="buy-btn" href="#">
+        <span class="zh">立即預購 · ORDER NOW</span>
+        <span class="en">Pre-Order Now · CAPLIFE</span>
+      </a>
+      <div class="outro-brand" style="font-size:8px;opacity:0.3;margin-top:4px;">
+        TRY ANOTHER YOU · CAPLIFE 2025
+      </div>
+    </div>
+  </div>
+
+</div><!-- /track -->
+
+<!-- DOTS -->
+<div id="dots"></div>
+
+<!-- NAV -->
+<div id="nav">
+  <button class="nav-btn" id="btn-prev" onclick="turn(-1)" disabled>&#8592;</button>
+  <div id="page-indicator">COVER</div>
+  <button class="nav-btn" id="btn-next" onclick="turn(1)">&#8594;</button>
+</div>
+
+<!-- LANGUAGE TOGGLE -->
+<div id="lang-toggle">
+  <button class="lang-btn active" id="btn-zh" onclick="setLang('zh')">ZH</button>
+  <div class="lang-divider"></div>
+  <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+</div>
+
+<!-- HINT -->
+<div id="hint">← → 鍵盤翻頁 · Swipe to navigate →</div>
+
+<script>
+const TOTAL = 8;
+let current = 0;
+let turning = false;
+let lang = 'zh';
+
+const track = document.getElementById('track');
+const pages = Array.from({length: TOTAL}, (_, i) => document.getElementById('page-' + i));
+const btnPrev = document.getElementById('btn-prev');
+const btnNext = document.getElementById('btn-next');
+const indicator = document.getElementById('page-indicator');
+const dotsEl = document.getElementById('dots');
+const hint = document.getElementById('hint');
+
+const labelsZH = ['封面','第一章','第二章','第三章','第四章','第五章','第六章','結語'];
+const labelsEN = ['COVER','CH.01','CH.02','CH.03','CH.04','CH.05','CH.06','END'];
+
+// Build dots
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => { if (!turning) goTo(i); };
+  dotsEl.appendChild(d);
+}
+
+function updateUI() {
+  dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  const labels = lang === 'zh' ? labelsZH : labelsEN;
+  indicator.textContent = labels[current];
+  btnPrev.disabled = current === 0;
+  btnNext.disabled = current === TOTAL - 1;
+}
+
+function slideToPage(index) {
+  track.style.transform = `translateX(${-index * 100}vw)`;
+}
+
+function turn(dir) {
+  if (turning) return;
+  const next = current + dir;
+  if (next < 0 || next >= TOTAL) return;
+  goTo(next);
+}
+
+function goTo(next) {
+  if (turning || next === current) return;
+  turning = true;
+  hint.classList.add('gone');
+
+  pages[current].classList.remove('active');
+  current = next;
+  slideToPage(current);
+
+  setTimeout(() => {
+    pages[current].classList.add('active');
+    updateUI();
+    turning = false;
+  }, 750);
+}
+
+// Language toggle
+function setLang(l) {
+  lang = l;
+  document.body.classList.toggle('lang-en', l === 'en');
+  document.getElementById('btn-zh').classList.toggle('active', l === 'zh');
+  document.getElementById('btn-en').classList.toggle('active', l === 'en');
+  updateUI();
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') turn(1);
+  if (e.key === 'ArrowLeft') turn(-1);
+});
+
+// Touch swipe
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive: true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) turn(dx < 0 ? 1 : -1);
+});
+
+// Mouse wheel
+let wheelLock = false;
+document.addEventListener('wheel', e => {
+  if (wheelLock) return;
+  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+    turn(e.deltaX > 0 ? 1 : -1);
+  } else {
+    turn(e.deltaY > 0 ? 1 : -1);
+  }
+  wheelLock = true;
+  setTimeout(() => { wheelLock = false; }, 900);
+}, {passive: true});
+
+updateUI();
+setTimeout(() => hint.classList.add('gone'), 5000);
+</script>
+</body>
+</html>
