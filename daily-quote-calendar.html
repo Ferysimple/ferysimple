@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUOTIDIAN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,200;0,300;1,200;1,300&family=Noto+Serif+TC:wght@200;300;400&family=DM+Sans:wght@200;300;400&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --white: #ffffff;
+  --off:   #fafafa;
+  --black: #0a0a0a;
+  --g1:    #1a1a1a;
+  --g2:    #4a4a4a;
+  --g3:    #8a8a8a;
+  --g4:    #c0c0c0;
+  --g5:    #e8e8e8;
+  --rule:  rgba(0,0,0,0.055);
+}
+
+html,body{
+  height:100%; width:100%;
+  background:var(--white);
+  color:var(--black);
+  font-family:'DM Sans',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+
+/* ══════════════════════════════
+   FULL-BLEED LAYOUT
+══════════════════════════════ */
+.canvas{
+  display:grid;
+  grid-template-columns: 1fr 1.15fr;
+  grid-template-rows: 100vh;
+  height:100vh;
+}
+
+/* ══════════════════════════════
+   LEFT — the stage
+══════════════════════════════ */
+.stage{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  padding:48px 52px 44px;
+  overflow:hidden;
+  border-right:1px solid var(--rule);
+}
+
+/* brand */
+.brand{
+  font-family:'DM Sans',sans-serif;
+  font-weight:200;
+  font-size:9px;
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  color:var(--g4);
+  z-index:2;
+}
+
+/* the massive date */
+.date-hero{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-end;
+  position:relative;
+  z-index:2;
+}
+
+.day-num{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:200;
+  font-size:clamp(160px, 22vw, 260px);
+  line-height:0.82;
+  letter-spacing:-0.04em;
+  color:var(--black);
+  display:block;
+  transition:opacity 0.5s ease;
+  text-shadow: 1px 2px 0 rgba(0,0,0,0.04), 2px 4px 0 rgba(0,0,0,0.02);
+}
+
+.weekday-row{
+  display:flex;
+  align-items:baseline;
+  gap:16px;
+  margin-top:20px;
+}
+
+.weekday-zh{
+  font-family:'Noto Serif TC',serif;
+  font-weight:200;
+  font-size:13px;
+  letter-spacing:0.35em;
+  color:var(--g2);
+}
+
+.weekday-en{
+  font-family:'DM Sans',sans-serif;
+  font-weight:200;
+  font-size:9px;
+  letter-spacing:0.38em;
+  text-transform:uppercase;
+  color:var(--g4);
+}
+
+.month-line{
+  font-family:'DM Sans',sans-serif;
+  font-weight:200;
+  font-size:10px;
+  letter-spacing:0.32em;
+  text-transform:uppercase;
+  color:var(--g4);
+  margin-top:6px;
+}
+
+/* ghost year behind number */
+.ghost-year{
+  position:absolute;
+  bottom:-20px;
+  right:-8px;
+  font-family:'Cormorant Garamond',serif;
+  font-weight:200;
+  font-size:clamp(80px,11vw,140px);
+  letter-spacing:-0.04em;
+  color:transparent;
+  -webkit-text-stroke: 1px var(--g5);
+  pointer-events:none;
+  user-select:none;
+  z-index:1;
+  white-space:nowrap;
+}
+
+/* mini cal */
+.mini-section{
+  z-index:2;
+}
+
+.mini-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+
+.mini-label{
+  font-size:8px;
+  letter-spacing:0.4em;
+  text-transform:uppercase;
+  color:var(--g4);
+}
+
+.mini-nav{
+  display:flex;
+  gap:14px;
+}
+
+.mini-nav-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:14px;
+  color:var(--g4);padding:0;
+  transition:color 0.15s;
+  line-height:1;
+}
+.mini-nav-btn:hover{color:var(--black);}
+
+.cal-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+}
+
+.cal-grid .dh{
+  font-size:7px;letter-spacing:0.06em;
+  color:var(--g4);text-align:center;
+  padding-bottom:8px;
+}
+
+.cal-grid .dc{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:11px;
+  color:var(--g3);text-align:center;
+  padding:3px 2px;cursor:pointer;
+  transition:color 0.15s,background 0.15s;
+  border-radius:2px;position:relative;
+}
+.cal-grid .dc:hover{color:var(--black);}
+.cal-grid .dc.is-today{
+  background:var(--black);color:var(--white);border-radius:2px;
+}
+.cal-grid .dc.is-view:not(.is-today){color:var(--black);font-weight:400;}
+.cal-grid .dc.is-view:not(.is-today)::after{
+  content:'';position:absolute;bottom:0;left:50%;
+  transform:translateX(-50%);
+  width:3px;height:1px;background:var(--g3);
+}
+.cal-grid .dc.empty{pointer-events:none;}
+
+/* ══════════════════════════════
+   RIGHT — the quote
+══════════════════════════════ */
+.panel{
+  display:flex;
+  flex-direction:column;
+  padding:48px 72px 44px 64px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* top bar */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.issue-tag{
+  font-size:8px;
+  letter-spacing:0.48em;
+  text-transform:uppercase;
+  color:var(--g4);
+}
+
+.nav-pair{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.nav-arrow{
+  background:none;border:none;cursor:pointer;padding:8px 10px;
+  font-family:'Cormorant Garamond',serif;font-weight:200;
+  font-size:18px;color:var(--g4);line-height:1;
+  transition:color 0.2s;border-radius:2px;
+}
+.nav-arrow:hover{color:var(--black);}
+
+/* large pull-quote */
+.quote-stage{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:40px 0 24px;
+  position:relative;
+}
+
+.quote-en{
+  font-family:'Cormorant',serif;
+  font-weight:300;
+  font-style:italic;
+  font-size:clamp(28px,3.2vw,44px);
+  line-height:1.55;
+  color:var(--g1);
+  letter-spacing:0.005em;
+  position:relative;z-index:1;
+  max-width:640px;
+  margin-bottom:22px;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+  hyphens:none;
+}
+
+.quote-zh{
+  font-family:'Noto Serif TC',serif;
+  font-weight:200;
+  font-size:16px;
+  line-height:2.2;
+  color:var(--g3);
+  letter-spacing:0.12em;
+  max-width:520px;
+  margin-bottom:52px;
+  position:relative;z-index:1;
+  white-space:pre-line;
+}
+
+/* author block */
+.attr{
+  position:relative;z-index:1;
+  display:flex;
+  align-items:flex-start;
+  gap:20px;
+}
+
+.attr-line{
+  width:1px;
+  height:52px;
+  background:var(--g4);
+  flex-shrink:0;
+  margin-top:2px;
+}
+
+.attr-text{}
+
+.attr-en{
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  font-size:11px;
+  letter-spacing:0.28em;
+  text-transform:uppercase;
+  color:var(--g1);
+  margin-bottom:5px;
+}
+
+.attr-zh{
+  font-family:'Noto Serif TC',serif;
+  font-weight:200;
+  font-size:11px;
+  letter-spacing:0.22em;
+  color:var(--g3);
+  margin-bottom:4px;
+}
+
+.attr-meta{
+  font-size:9px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--g4);
+}
+
+/* ── bottom bar ── */
+.botbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-top:28px;
+  border-top:1px solid var(--rule);
+}
+
+.progress-track{
+  flex:1;
+  max-width:200px;
+  height:1px;
+  background:var(--g5);
+  position:relative;
+}
+
+.progress-fill{
+  position:absolute;
+  left:0;top:0;height:100%;
+  background:var(--g3);
+  transition:width 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+
+.doy-label{
+  font-size:8px;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:var(--g4);
+  margin-left:20px;
+}
+
+.nav-hint{
+  font-size:8px;
+  letter-spacing:0.28em;
+  text-transform:uppercase;
+  color:var(--g5);
+}
+
+/* ── fade transitions ── */
+.fd{transition:opacity 0.45s ease,transform 0.45s ease;}
+.fd.out{opacity:0;transform:translateY(10px);}
+
+/* ── entry animation ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.day-num{animation:fadeUp 0.7s ease both;}
+.quote-en{animation:fadeUp 0.7s 0.1s ease both;}
+.quote-zh{animation:fadeUp 0.7s 0.18s ease both;}
+.attr{animation:fadeUp 0.7s 0.26s ease both;}
+
+/* responsive */
+@media(max-width:760px){
+  html,body{overflow:auto;}
+  .canvas{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto;min-height:100vh;}
+  .stage{border-right:none;border-bottom:1px solid var(--rule);padding:36px 28px 32px;}
+  .day-num{font-size:clamp(120px,38vw,180px);}
+  .panel{padding:36px 28px;}
+  .deco-q{font-size:180px;top:-10px;left:-16px;}
+  .ghost-year{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="canvas">
+
+  <!-- ═══ LEFT ═══ -->
+  <div class="stage">
+    <div class="brand">Quotidian · 每日語錄</div>
+
+    <div class="date-hero">
+      <span class="ghost-year" id="ghostYear"></span>
+      <span class="day-num" id="dayNum">01</span>
+      <div class="weekday-row">
+        <span class="weekday-zh" id="wdayZh">星期一</span>
+        <span class="weekday-en" id="wdayEn">Monday</span>
+      </div>
+      <div class="month-line" id="monthLine">January 2026</div>
+    </div>
+
+    <div class="mini-section">
+      <div class="mini-head">
+        <span class="mini-label" id="miniLabel">May 2026</span>
+        <div class="mini-nav">
+          <button class="mini-nav-btn" id="calPrev">&#8592;</button>
+          <button class="mini-nav-btn" id="calNext">&#8594;</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT ═══ -->
+  <div class="panel">
+
+    <div class="topbar">
+      <span class="issue-tag" id="issueTag">No. 001 · Daily Wisdom</span>
+      <div class="nav-pair">
+        <button class="nav-arrow" id="prevBtn" title="前一天">&#8592;</button>
+        <button class="nav-arrow" id="nextBtn" title="後一天">&#8594;</button>
+      </div>
+    </div>
+
+    <div class="quote-stage">
+      <div class="quote-en fd" id="qEn"></div>
+      <div class="quote-zh fd" id="qZh"></div>
+      <div class="attr fd">
+        <div class="attr-line"></div>
+        <div class="attr-text">
+          <div class="attr-en"  id="aEn"></div>
+          <div class="attr-zh"  id="aZh"></div>
+          <div class="attr-meta" id="aMeta"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="botbar">
+      <div style="display:flex;align-items:center;flex:1;">
+        <div class="progress-track">
+          <div class="progress-fill" id="progFill"></div>
+        </div>
+        <span class="doy-label" id="doyLabel"></span>
+      </div>
+      <span class="nav-hint">← →</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const Q=[
+  {en:"The only way to do great work is to love what you do.",zh:"做出偉大工作的唯一方法，\n就是熱愛你所做的事。",aEn:"Steve Jobs",aZh:"史蒂夫·賈伯斯",m:"1955 – 2011 · Entrepreneur"},
+  {en:"In the middle of every difficulty lies opportunity.",zh:"每一個困難的中心，\n都潛藏著機會。",aEn:"Albert Einstein",aZh:"阿爾伯特·愛因斯坦",m:"1879 – 1955 · Physicist"},
+  {en:"It does not matter how slowly you go as long as you do not stop.",zh:"走得再慢都無妨，\n只要你不停下腳步。",aEn:"Confucius",aZh:"孔子",m:"551 – 479 BC · Philosopher"},
+  {en:"Life is what happens when you're busy making other plans.",zh:"生命就是那些你在忙著計劃其他事情時，\n發生的事。",aEn:"John Lennon",aZh:"約翰·藍儂",m:"1940 – 1980 · Musician"},
+  {en:"The future belongs to those who believe in the beauty of their dreams.",zh:"未來屬於那些\n相信夢想之美的人。",aEn:"Eleanor Roosevelt",aZh:"埃莉諾·羅斯福",m:"1884 – 1962 · Humanitarian"},
+  {en:"Spread love everywhere you go.",zh:"把愛散播到\n你所到之處。",aEn:"Mother Teresa",aZh:"德蕾莎修女",m:"1910 – 1997 · Saint"},
+  {en:"Do not go where the path may lead; go instead where there is no path and leave a trail.",zh:"別走在路的盡頭，\n去那沒有路的地方，\n留下自己的足跡。",aEn:"Ralph Waldo Emerson",aZh:"愛默生",m:"1803 – 1882 · Philosopher"},
+  {en:"You will face many defeats in life, but never let yourself be defeated.",zh:"你一生中將面臨許多失敗，\n但永遠不要讓自己被打倒。",aEn:"Maya Angelou",aZh:"瑪雅·安吉洛",m:"1928 – 2014 · Poet"},
+  {en:"The greatest glory lies not in never falling, but in rising every time we fall.",zh:"生命最大的榮耀，\n不在於從不跌倒，\n而在於每次跌倒後的重新站起。",aEn:"Nelson Mandela",aZh:"納爾遜·曼德拉",m:"1918 – 2013 · Statesman"},
+  {en:"In the end, it's not the years in your life that count. It's the life in your years.",zh:"最終，重要的不是你活了多少年，\n而是歲月中有多少生命力。",aEn:"Abraham Lincoln",aZh:"亞伯拉罕·林肯",m:"1809 – 1865 · President"},
+  {en:"The mind is everything. What you think you become.",zh:"心靈就是一切，\n你所想的，便是你所成為的。",aEn:"Buddha",aZh:"釋迦牟尼佛",m:"c. 563 – 483 BC · Teacher"},
+  {en:"Strive not to be a success, but rather to be of value.",zh:"努力的目標不是成功，\n而是成為有價值的人。",aEn:"Albert Einstein",aZh:"愛因斯坦",m:"1879 – 1955 · Physicist"},
+  {en:"Two roads diverged in a wood, and I took the one less traveled by.",zh:"樹林裡分出兩條路，\n我選了那條少人走的。",aEn:"Robert Frost",aZh:"羅伯特·弗羅斯特",m:"1874 – 1963 · Poet"},
+  {en:"You miss 100% of the shots you don't take.",zh:"你不出手的那一球，\n百分之百會錯過。",aEn:"Wayne Gretzky",aZh:"韋恩·葛雷茨基",m:"b. 1961 · Athlete"},
+  {en:"I am not a product of my circumstances. I am a product of my decisions.",zh:"我不是環境的產物，\n我是我的決定的產物。",aEn:"Stephen Covey",aZh:"史蒂芬·柯維",m:"1932 – 2012 · Author"},
+  {en:"Every child is an artist. The problem is how to remain an artist once we grow up.",zh:"每個孩子都是藝術家，\n問題是長大後如何保持藝術家的本色。",aEn:"Pablo Picasso",aZh:"巴布羅·畢卡索",m:"1881 – 1973 · Artist"},
+  {en:"People will never forget how you made them feel.",zh:"人們永遠不會忘記，\n你讓他們感受到的感覺。",aEn:"Maya Angelou",aZh:"瑪雅·安吉洛",m:"1928 – 2014 · Poet"},
+  {en:"Whether you think you can or you think you can't, you're right.",zh:"無論你認為你能，\n還是你不能，你都是對的。",aEn:"Henry Ford",aZh:"亨利·福特",m:"1863 – 1947 · Industrialist"},
+  {en:"The two most important days are the day you are born and the day you find out why.",zh:"生命最重要的兩天：\n你出生的那天，\n以及你發現你為何而來的那天。",aEn:"Mark Twain",aZh:"馬克·吐溫",m:"1835 – 1910 · Author"},
+  {en:"Not all those who wander are lost.",zh:"並非所有漫遊者，\n都迷失了方向。",aEn:"J.R.R. Tolkien",aZh:"托爾金",m:"1892 – 1973 · Author"},
+  {en:"Everything you've ever wanted is on the other side of fear.",zh:"你一直渴望的一切，\n都在恐懼的彼岸等著你。",aEn:"George Addair",aZh:"喬治·阿代爾",m:"1832 – 1915 · Businessman"},
+  {en:"Dream big and dare to fail.",zh:"大膽地夢想，\n勇敢地去失敗。",aEn:"Norman Vaughan",aZh:"諾曼·沃恩",m:"1905 – 2005 · Explorer"},
+  {en:"We become what we think about.",zh:"我們成為，\n我們所思考的樣子。",aEn:"Earl Nightingale",aZh:"厄爾·南丁格爾",m:"1921 – 1989 · Speaker"},
+  {en:"Darkness cannot drive out darkness; only light can do that.",zh:"黑暗無法驅趕黑暗，\n只有光才能做到。",aEn:"Martin Luther King Jr.",aZh:"馬丁·路德·金",m:"1929 – 1968 · Leader"},
+  {en:"Do one thing every day that scares you.",zh:"每天做一件，\n讓你感到害怕的事。",aEn:"Eleanor Roosevelt",aZh:"埃莉諾·羅斯福",m:"1884 – 1962 · Humanitarian"},
+  {en:"Well done is better than well said.",zh:"做得好，\n勝過說得好。",aEn:"Benjamin Franklin",aZh:"班傑明·富蘭克林",m:"1706 – 1790 · Statesman"},
+  {en:"What lies within us dwarfs what lies behind or before us.",zh:"我們內心的力量，\n遠比身後與身前的事物更為宏大。",aEn:"Ralph Waldo Emerson",aZh:"愛默生",m:"1803 – 1882 · Philosopher"},
+  {en:"Perfection is not attainable, but if we chase it we can catch excellence.",zh:"完美無法達成，\n但若我們追求完美，\n我們能夠捕獲卓越。",aEn:"Vince Lombardi",aZh:"文斯·隆巴迪",m:"1913 – 1970 · Coach"},
+  {en:"If you want to lift yourself up, lift up someone else.",zh:"如果你想提升自己，\n就先提升別人。",aEn:"Booker T. Washington",aZh:"布克·華盛頓",m:"1856 – 1915 · Educator"},
+  {en:"Believe you can and you're halfway there.",zh:"相信你能，\n你就已經走了一半的路。",aEn:"Theodore Roosevelt",aZh:"西奧多·羅斯福",m:"1858 – 1919 · President"},
+  {en:"Start where you are. Use what you have. Do what you can.",zh:"從你所在的地方開始，\n用你所擁有的，\n做你所能做的。",aEn:"Arthur Ashe",aZh:"亞瑟·艾許",m:"1943 – 1993 · Athlete"},
+  {en:"Act as if what you do makes a difference. It does.",zh:"像你所做的事真的有影響一樣去行動，\n因為它確實有。",aEn:"William James",aZh:"威廉·詹姆斯",m:"1842 – 1910 · Philosopher"},
+];
+
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MZH=["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+const WDZH=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+const WDEN=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const WDSH=["一","二","三","四","五","六","日"];
+
+let today=new Date();
+let view=new Date(today);
+let calMonth=new Date(today.getFullYear(),today.getMonth(),1);
+
+const pad=n=>String(n).padStart(2,'0');
+const doy=d=>Math.floor((d-new Date(d.getFullYear(),0,0))/86400000);
+const totalDays=d=>doy(new Date(d.getFullYear(),11,31));
+const getQ=d=>Q[(d.getFullYear()*400+doy(d))%Q.length];
+const $=id=>document.getElementById(id);
+
+function renderDate(d){
+  $('dayNum').textContent=pad(d.getDate());
+  $('wdayZh').textContent=WDZH[d.getDay()];
+  $('wdayEn').textContent=WDEN[d.getDay()];
+  $('monthLine').textContent=`${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  $('ghostYear').textContent=d.getFullYear();
+  // issue number = day of year
+  const n=doy(d);
+  $('issueTag').textContent=`No. ${String(n).padStart(3,'0')} · Daily Wisdom`;
+}
+
+function renderQuote(d){
+  const fds=['qEn','qZh'];
+  const all=['qEn','qZh','aEn','aZh','aMeta'];
+  all.forEach(id=>$('quote-stage')||true) // noop
+  // fade out
+  fds.forEach(id=>{$(id).classList.add('out');});
+  const attrEl=document.querySelector('.attr');
+  if(attrEl)attrEl.classList.add('out');
+
+  setTimeout(()=>{
+    const q=getQ(d);
+    $('qEn').textContent=q.en;
+    $('qZh').textContent=q.zh;
+    $('aEn').textContent=q.aEn;
+    $('aZh').textContent=q.aZh;
+    $('aMeta').textContent=q.m;
+
+    fds.forEach((id,i)=>setTimeout(()=>$(id).classList.remove('out'),i*60));
+    setTimeout(()=>{ if(attrEl)attrEl.classList.remove('out'); },120);
+  },300);
+
+  // progress bar
+  const dy=doy(d), tot=totalDays(d);
+  const pct=(dy/tot*100).toFixed(1);
+  $('progFill').style.width=pct+'%';
+  $('doyLabel').textContent=`Day ${dy} of ${tot}`;
+}
+
+function renderMini(d){
+  const yr=calMonth.getFullYear(),mo=calMonth.getMonth();
+  $('miniLabel').textContent=`${MZH[mo]} · ${MONTHS[mo].slice(0,3).toUpperCase()} ${yr}`;
+  const grid=$('calGrid');
+  grid.innerHTML='';
+  WDSH.forEach(h=>{const el=document.createElement('div');el.className='dh';el.textContent=h;grid.appendChild(el);});
+  const rawFirst=new Date(yr,mo,1).getDay(); // 0=Sun
+  const first=(rawFirst+6)%7; // convert so Mon=0, Sun=6
+  const days=new Date(yr,mo+1,0).getDate();
+  for(let i=0;i<first;i++){const el=document.createElement('div');el.className='dc empty';grid.appendChild(el);}
+  for(let i=1;i<=days;i++){
+    const el=document.createElement('div');el.className='dc';el.textContent=i;
+    const iT=i===today.getDate()&&mo===today.getMonth()&&yr===today.getFullYear();
+    const iV=i===d.getDate()&&mo===d.getMonth()&&yr===d.getFullYear();
+    if(iT)el.classList.add('is-today');
+    if(iV)el.classList.add('is-view');
+    el.addEventListener('click',()=>{view=new Date(yr,mo,i);renderAll(view);});
+    grid.appendChild(el);
+  }
+}
+
+function renderAll(d){renderDate(d);renderQuote(d);renderMini(d);}
+
+$('prevBtn').addEventListener('click',()=>{view.setDate(view.getDate()-1);renderAll(new Date(view));});
+$('nextBtn').addEventListener('click',()=>{view.setDate(view.getDate()+1);renderAll(new Date(view));});
+$('calPrev').addEventListener('click',()=>{calMonth.setMonth(calMonth.getMonth()-1);renderMini(view);});
+$('calNext').addEventListener('click',()=>{calMonth.setMonth(calMonth.getMonth()+1);renderMini(view);});
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft')$('prevBtn').click();
+  if(e.key==='ArrowRight')$('nextBtn').click();
+});
+
+renderAll(view);
+</script>
+</body>
+</html>
