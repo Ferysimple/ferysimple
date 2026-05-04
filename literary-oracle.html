@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xml:lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>紙上問事 · Paper Oracle</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+TC:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --bg:#ffffff;
+  --fg:#111111;
+  --mid:#888888;
+  --faint:#cccccc;
+  --line:rgba(0,0,0,0.08);
+  --accent:#111111;
+}
+
+html,body{
+  min-height:100%;
+  background:#ffffff !important;
+  color:var(--fg);
+  font-family:'Noto Serif TC',serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  color-scheme:light;
+}
+:root{ color-scheme:light; }
+
+.page{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:0 24px 120px;
+}
+
+/* ── HEADER ── */
+header{
+  width:100%;max-width:560px;
+  padding:72px 0 0;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+.eyebrow{
+  font-family:'Cormorant Garamond',serif;
+  font-size:10px;letter-spacing:0.52em;text-transform:uppercase;
+  color:var(--mid);margin-bottom:20px;
+  font-weight:400;
+}
+
+h1{
+  font-family:'PingFang TC','Helvetica Neue','Noto Sans TC',sans-serif;
+  font-weight:300;
+  font-size:clamp(36px,7vw,54px);
+  letter-spacing:0.22em;
+  line-height:1.1;
+  color:var(--fg);
+  text-align:center;
+}
+
+
+.tagline{
+  font-family:'Noto Serif TC',serif;
+  font-size:11.5px;letter-spacing:0.18em;
+  color:var(--mid);margin-top:14px;
+  font-weight:300;
+  word-break:keep-all;
+  text-align:center;
+}
+
+.vline{
+  width:1px;height:48px;
+  background:linear-gradient(to bottom,transparent,rgba(0,0,0,0.15),transparent);
+  margin:36px auto;
+}
+
+/* ── BOOK WRAPPER ── */
+.book-stage{
+  display:flex;flex-direction:column;align-items:center;
+  gap:36px;
+  width:100%;max-width:520px;
+}
+
+.prompt{
+  font-family:'Cormorant Garamond',serif;
+  font-size:12px;letter-spacing:0.26em;
+  color:var(--mid);text-align:center;
+  font-style:italic;font-weight:300;
+}
+
+/* The book itself */
+.book-container{
+  width:100%;
+  perspective:1400px;
+  cursor:pointer;
+  user-select:none;
+}
+
+.book{
+  width:100%;
+  position:relative;
+  padding-bottom:78%;
+}
+
+/* Static spread */
+.spread{
+  position:absolute;inset:0;
+  display:flex;
+  border:1px solid rgba(0,0,0,0.09);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.04),
+    0 8px 32px rgba(0,0,0,0.07),
+    0 24px 60px rgba(0,0,0,0.05);
+}
+
+.p-left{
+  width:50%;
+  background:#ffffff;
+  border-right:1px solid rgba(0,0,0,0.07);
+  display:flex;align-items:center;justify-content:center;
+  padding:32px 28px;
+  position:relative;
+  overflow:hidden;
+}
+
+.p-right{
+  width:50%;
+  background:#ffffff;
+  display:flex;align-items:center;justify-content:center;
+  padding:32px 28px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* spine shadow inward gradient */
+.p-left::after{
+  content:'';
+  position:absolute;
+  right:0;top:0;bottom:0;width:14px;
+  background:linear-gradient(to left,rgba(0,0,0,0.035),transparent);
+  pointer-events:none;
+}
+.p-right::after{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;width:14px;
+  background:linear-gradient(to right,rgba(0,0,0,0.03),transparent);
+  pointer-events:none;
+}
+
+/* book bottom shadow */
+.book-shadow{
+  position:absolute;
+  bottom:-10px;left:6%;right:6%;
+  height:14px;
+  background:radial-gradient(ellipse at center,rgba(0,0,0,0.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+/* Page content layouts */
+.left-content{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:10px;text-align:center;
+  width:100%;height:100%;
+}
+.right-content{
+  display:flex;flex-direction:column;
+  align-items:flex-start;justify-content:center;
+  gap:16px;width:100%;height:100%;
+}
+
+/* Page number */
+.pg-no{
+  font-family:'Cormorant Garamond',serif;
+  font-size:9px;letter-spacing:0.4em;text-transform:uppercase;
+  color:var(--faint);font-weight:400;
+}
+
+/* Chinese quote — right page, primary */
+.pg-quote-zh{
+  font-family:'Noto Serif TC',serif;
+  font-size:clamp(12.5px,2.4vw,16px);
+  font-weight:300;
+  line-height:2.1;
+  color:var(--fg);
+  letter-spacing:0.06em;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+  text-align:justify;
+  /* Prevent orphan single characters at line end */
+  hanging-punctuation:last;
+}
+
+/* English quote — right page, secondary */
+.pg-quote-en{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(10.5px,1.8vw,13.5px);
+  font-weight:300;font-style:italic;
+  line-height:1.9;
+  color:var(--mid);
+  letter-spacing:0.01em;
+  text-align:left;
+  hyphens:auto;
+  word-break:break-word;
+}
+
+.pg-dash{
+  width:16px;height:1px;
+  background:var(--faint);
+  flex-shrink:0;
+}
+
+/* Left page — author block */
+.pg-author{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(15px,2.8vw,20px);
+  font-weight:400;
+  letter-spacing:0.06em;
+  color:var(--fg);
+  line-height:1.25;
+}
+.pg-author-en{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(9px,1.5vw,12px);
+  letter-spacing:0.12em;
+  color:var(--mid);
+  font-weight:300;
+  margin-top:-6px;
+}
+.pg-work{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(9px,1.5vw,12px);
+  letter-spacing:0.12em;font-style:italic;
+  color:var(--mid);font-weight:300;
+}
+.pg-tag{
+  font-family:'Cormorant Garamond',serif;
+  font-size:8.5px;letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--mid);
+  border:1px solid var(--faint);
+  padding:3px 10px 2px;
+  display:inline-block;
+  font-weight:400;
+}
+
+/* Hint at bottom of left page */
+.pg-hint{
+  font-family:'Noto Serif TC',serif;
+  font-size:clamp(8.5px,1.4vw,11px);
+  line-height:2.1;
+  color:var(--mid);
+  font-weight:300;
+  border-top:1px solid var(--line);
+  padding-top:12px;
+  margin-top:4px;
+  width:100%;text-align:left;
+  letter-spacing:0.04em;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+}
+
+/* ── FLIP ANIMATION ── */
+.flip-layer{
+  position:absolute;inset:0;
+  pointer-events:none;z-index:10;
+}
+
+.turning-page{
+  position:absolute;
+  top:0;bottom:0;right:0;width:50%;
+  transform-origin:left center;
+  transform-style:preserve-3d;
+  transition:transform 0.72s cubic-bezier(0.645,0.045,0.355,1);
+  pointer-events:none;z-index:20;
+}
+.turning-page.flip{ transform:rotateY(-180deg); }
+
+.turning-front,.turning-back{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  display:flex;align-items:center;justify-content:center;
+  padding:32px 28px;
+}
+.turning-front{
+  background:#ffffff;
+  box-shadow:inset -2px 0 8px rgba(0,0,0,0.04);
+}
+.turning-back{
+  background:#ffffff;
+  transform:rotateY(180deg);
+  border-radius:0;
+  align-items:center;justify-content:center;
+  gap:10px;
+}
+
+/* Flip shadow at spine during animation */
+.turning-page::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;width:20px;
+  background:linear-gradient(to right,rgba(0,0,0,0.07),transparent);
+  z-index:1;
+  border-radius:0;
+}
+
+/* ── DRAW BUTTON ── */
+.draw-btn{
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px;letter-spacing:0.52em;text-transform:uppercase;
+  color:#ffffff;background:var(--fg);
+  border:none;padding:15px 44px 13px;
+  cursor:pointer;outline:none;
+  font-weight:400;
+  transition:opacity 0.2s,transform 0.15s;
+}
+.draw-btn:hover{opacity:0.8;transform:translateY(-1px);}
+.draw-btn:active{transform:translateY(1px);}
+.draw-btn:disabled{opacity:0.25;cursor:not-allowed;transform:none;}
+
+.draw-count{
+  font-family:'Cormorant Garamond',serif;
+  font-size:10px;letter-spacing:0.26em;
+  color:var(--faint);font-weight:300;
+}
+
+/* ── HISTORY ── */
+.history{
+  width:100%;max-width:520px;
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  opacity:0;transition:opacity 0.6s;
+}
+.history.in{opacity:1;}
+.hchip{
+  font-family:'Cormorant Garamond',serif;
+  font-size:9.5px;letter-spacing:0.22em;
+  color:var(--mid);
+  border:1px solid var(--line);
+  padding:5px 13px 4px;cursor:pointer;
+  transition:border-color 0.2s,color 0.2s;
+  font-weight:400;
+}
+.hchip:hover{border-color:rgba(0,0,0,0.25);color:var(--fg);}
+
+/* ── COVER ── */
+.idle-cover{
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  background:#ffffff;
+  border:1px solid rgba(0,0,0,0.08);
+  display:flex;
+  flex-direction:column;
+  z-index:50;
+  box-shadow:3px 3px 0 #e8e8e8,6px 6px 0 rgba(0,0,0,0.04);
+  transition:opacity 0.5s;
+  overflow:hidden;
+}
+.idle-cover.hidden{opacity:0;pointer-events:none;}
+
+/* Top band — eyebrow label */
+.cover-eyebrow{
+  padding:16px 20px 0;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(8px,2vw,10px);letter-spacing:0.45em;text-transform:uppercase;
+  color:var(--faint);font-weight:400;
+  text-align:center;
+  flex-shrink:0;
+}
+
+/* Main content area — centred */
+.cover-body{
+  flex:1;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:16px 24px;
+  gap:12px;
+  text-align:center;
+}
+
+.cover-zh{
+  font-family:'Noto Serif TC',serif;
+  font-size:clamp(15px,4vw,20px);
+  font-weight:300;
+  color:var(--fg);
+  line-height:2.2;
+  letter-spacing:0.14em;
+  word-break:keep-all;
+  text-align:center;
+}
+
+.cover-rule{
+  width:24px;height:1px;
+  background:rgba(0,0,0,0.15);
+  flex-shrink:0;
+}
+
+.cover-en{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(12px,3vw,16px);
+  font-weight:300;font-style:italic;
+  color:var(--mid);
+  line-height:1.9;
+  letter-spacing:0.02em;
+}
+
+.cover-attr{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(9px,2vw,11px);
+  letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--faint);font-weight:400;
+  margin-top:6px;
+}
+
+/* Bottom band */
+.cover-bottom{
+  padding:0 20px 14px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  flex-shrink:0;
+}
+.cover-bottom-line{
+  width:100%;height:1px;
+  background:rgba(0,0,0,0.055);
+}
+.cover-title-main{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(16px,4vw,22px);
+  font-weight:300;font-style:italic;
+  color:var(--fg);letter-spacing:0.08em;text-align:center;
+  line-height:1.2;
+}
+.cover-title-sub{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(8px,2vw,10px);letter-spacing:0.45em;text-transform:uppercase;
+  color:var(--faint);
+}
+
+@media(max-width:520px){
+  .pg-quote-zh{font-size:12px;line-height:1.9;}
+  .pg-quote-en{font-size:10px;}
+  .pg-author{font-size:14px;}
+  .p-left,.p-right{padding:20px 18px;}
+  .turning-front,.turning-back{padding:20px 18px;}
+  .book-stage{max-width:100%;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <p class="eyebrow">Paper Oracle &nbsp;·&nbsp; 世界名言</p>
+    <h1>紙上問事</h1>
+    <p class="tagline">翻開一頁，遇見此刻等著你的那句話</p>
+  </header>
+
+  <div class="vline"></div>
+
+  <div class="book-stage">
+    <p class="prompt" id="prompt">點擊書本，翻開一頁</p>
+
+    <!-- Book -->
+    <div class="book-container" onclick="drawQuote()">
+      <div class="book" id="book">
+
+        <!-- Idle cover (shown before first draw) -->
+        <div class="idle-cover" id="idleCover">
+          <div class="cover-eyebrow">Paper Oracle · 世界名言 · 100 則</div>
+          <div class="cover-body">
+            <div class="cover-zh">你帶著問題來<br>書給你一個回應</div>
+            <div class="cover-rule"></div>
+            <div class="cover-en">You arrive with a question.<br>The book offers an answer.</div>
+            <div class="cover-attr">— 點擊翻開 —</div>
+          </div>
+          <div class="cover-bottom">
+            <div class="cover-bottom-line"></div>
+            <div class="cover-title-main">One Hundred Voices</div>
+            <div class="cover-title-sub">World Literature</div>
+          </div>
+        </div>
+
+        <!-- Spread (visible after first draw) -->
+        <div class="spread" id="spread" style="opacity:0">
+          <!-- Left page: author + hint -->
+          <div class="p-left">
+            <div class="left-content" id="leftContent">
+              <div class="pg-no" id="pgNo">—</div>
+              <div class="pg-author" id="pgAuthor"></div>
+              <div class="pg-work" id="pgWork"></div>
+              <div class="pg-tag" id="pgTag"></div>
+              <div class="pg-hint" id="pgHint"></div>
+            </div>
+          </div>
+          <!-- Right page: quote -->
+          <div class="p-right">
+            <div class="right-content" id="rightContent">
+              <div class="pg-quote-zh" id="pgZh"></div>
+              <div class="pg-dash"></div>
+              <div class="pg-quote-en" id="pgEn"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Turning page layer -->
+        <div class="flip-layer">
+          <div class="turning-page" id="turningPage">
+            <!-- Front: shows current right page content (old) while flipping -->
+            <div class="turning-front" id="turningFront">
+              <div class="right-content" id="turningFrontContent"></div>
+            </div>
+            <!-- Back: shows next left page content (new author) -->
+            <div class="turning-back" id="turningBack">
+              <div class="left-content" id="turningBackContent"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-shadow"></div>
+      </div>
+    </div>
+
+    <button class="draw-btn" id="drawBtn" onclick="drawQuote()">翻　一　頁</button>
+    <div class="draw-count" id="drawCount"></div>
+  </div>
+
+  <div style="height:28px"></div>
+  <div class="history" id="history"></div>
+
+</div>
+
+<script>
+const Q=[
+  // Contemporary & classic — mix of eras, all resonant
+  {id:1,zh:"我不害怕死亡，只是不想在它發生時在場。",en:"I'm not afraid of death. I just don't want to be there when it happens.",a:"伍迪·艾倫",an:"Woody Allen",w:"《Side Effects》",c:"存在",h:"你真正害怕的，或許不是結局，而是過程中的失控感。"},
+  {id:2,zh:"我們接受我們認為自己值得的愛。",en:"We accept the love we think we deserve.",a:"史蒂芬·喬伯斯基",an:"Stephen Chbosky",w:"《壁花男孩》",c:"愛",h:"你目前允許自己被如何對待，說明你對自己的評價。"},
+  {id:3,zh:"並非所有漂泊者都是迷失的人。",en:"Not all those who wander are lost.",a:"J.R.R.托爾金",an:"J.R.R. Tolkien",w:"《魔戒》",c:"旅途",h:"你現在的「沒有方向」，或許正是一種必要的自由。"},
+  {id:4,zh:"每件事都是可以練習的，包括快樂。",en:"Happiness is a skill, not a gift.",a:"大衛·福斯特·華萊士",an:"David Foster Wallace",w:"《這是水》",c:"幸福",h:"你在等快樂自己來找你，還是在主動練習它？"},
+  {id:5,zh:"你花了太多時間讓所有人喜歡你，卻忘記問自己是否喜歡他們。",en:"You've been criticizing yourself for years and it hasn't worked. Try approving of yourself.",a:"露易絲·海",an:"Louise Hay",w:"《創造生命的奇蹟》",c:"自我",h:"你在討好誰？那個人值得你付出這麼多嗎？"},
+  {id:6,zh:"沒有什麼故事是真正結束的。",en:"No story ever ends. It just finds new beginnings.",a:"派崔克·羅斯弗斯",an:"Patrick Rothfuss",w:"《弒君者》",c:"轉化",h:"你以為已經結束的事，也許正在以另一種形式延續。"},
+  {id:7,zh:"人唯一真正擁有的，是自己注意力的方向。",en:"The most precious gift we can offer anyone is our attention.",a:"大衛·福斯特·華萊士",an:"David Foster Wallace",w:"《這是水》",c:"覺察",h:"你的注意力現在放在哪裡？那個方向，值得嗎？"},
+  {id:8,zh:"把你的恐懼變成好奇心。",en:"Curiosity is the antidote to fear.",a:"伊莉莎白·吉兒伯特",an:"Elizabeth Gilbert",w:"《享受吧！一個人的旅行》",c:"勇氣",h:"你對那件事的恐懼，如果換成好奇心，會看到什麼？"},
+  {id:9,zh:"你不能靠分析走出一個靠感覺走進去的地方。",en:"You can't think your way out of something you behaved your way into.",a:"賈瑞德·金曼",an:"Jared Kinman",w:"（語錄）",c:"行動",h:"這個困境，需要的不是更多思考，而是一個行動。"},
+  {id:10,zh:"所有真正的對話，都始於沉默。",en:"The quieter you become, the more you can hear.",a:"拉姆·達斯",an:"Ram Dass",w:"《活在當下》",c:"靜心",h:"你上一次真正靜下來，是什麼時候？"},
+  {id:11,zh:"你不需要被任何人理解，你只需要理解自己。",en:"You do not need to be loved, not at the cost of yourself.",a:"蘇琦·卡山納斯",an:"Suzanne Kasler",w:"（語錄）",c:"自我",h:"此刻，你對自己的理解有多深？"},
+  {id:12,zh:"生命中最難的部分，是等待。",en:"The most difficult thing is the decision to act; the rest is merely tenacity.",a:"阿蜜莉亞·艾爾哈特",an:"Amelia Earhart",w:"（語錄）",c:"行動",h:"你在等什麼？那個等待，真的必要嗎？"},
+  {id:13,zh:"你所逃避的事，正在控制你。",en:"What you resist, persists.",a:"卡爾·榮格",an:"Carl Jung",w:"（語錄）",c:"心理",h:"試著面對你一直在逃避的那件事。它比你想像的要小。"},
+  {id:14,zh:"人的悲劇在於，我們都知道我們會死，卻活得好像不會。",en:"The tragedy of life is not death but what we let die inside us while we live.",a:"諾曼·卡曾斯",an:"Norman Cousins",w:"（語錄）",c:"生命",h:"你讓什麼死在你心裡了？是否還來得及召喚回來？"},
+  {id:15,zh:"你不必把所有的門都打開，只要走進對的那扇。",en:"Not all doors are meant to be opened. You just need to find the right one.",a:"尼爾·蓋曼",an:"Neil Gaiman",w:"《美國眾神》",c:"選擇",h:"你現在站在哪扇門前？你的直覺告訴你什麼？"},
+  {id:16,zh:"改變需要的不是力量，而是意願。",en:"Change happens when the pain of staying the same is greater than the pain of changing.",a:"安東尼·羅賓斯",an:"Tony Robbins",w:"《喚醒心中的巨人》",c:"改變",h:"你還沒改變，是因為還不夠痛，還是因為你已選擇留在原地？"},
+  {id:17,zh:"你不是你的想法，你是觀察這些想法的人。",en:"You are not your thoughts; you are the awareness behind them.",a:"埃克哈特·托勒",an:"Eckhart Tolle",w:"《當下的力量》",c:"心理",h:"把那個讓你困擾的念頭放在眼前，然後退一步，只是看著它。"},
+  {id:18,zh:"寫作是我試圖讓世界在我消失後繼續閱讀我。",en:"Writing is the only way I have of explaining my own life to myself.",a:"派崔克·莫迪亞諾",an:"Patrick Modiano",w:"（諾貝爾演講）",c:"表達",h:"你用什麼方式讓自己被記住？那件事，你還在做嗎？"},
+  {id:19,zh:"你能給孩子最好的禮物，是讓他看見你活得真實。",en:"The greatest thing a parent can do is to let their children see them pursue their own dreams.",a:"布芮尼·布朗",an:"Brené Brown",w:"《不完美的禮物》",c:"關係",h:"你是否允許自己活得真實，而不只是活給別人看？"},
+  {id:20,zh:"所有的倦怠，都是某種背叛自己的累積。",en:"Burnout is what happens when you try to avoid being human for too long.",a:"麥可·根泰利",an:"Michael Gungor",w:"（語錄）",c:"疲憊",h:"你現在的疲憊，是身體的疲憊，還是靈魂的？"},
+  {id:21,zh:"你是你所有選擇的總和。",en:"You are the sum of your choices.",a:"尚-保羅·沙特",an:"Jean-Paul Sartre",w:"《存在主義是一種人道主義》",c:"責任",h:"如果你是所有選擇的結果，那麼下一個選擇，你想做什麼？"},
+  {id:22,zh:"沒有人能奪走你選擇回應的自由。",en:"Between stimulus and response, there is a space. In that space is our power to choose.",a:"維克多·弗蘭克",an:"Viktor Frankl",w:"《活出意義來》",c:"自由",h:"在任何發生的事情和你的反應之間，你有那一秒鐘的空間。用好它。"},
+  {id:23,zh:"所有的創意，都始於願意看起來很蠢。",en:"Creativity is allowing yourself to make mistakes. Art is knowing which ones to keep.",a:"史考特·亞當斯",an:"Scott Adams",w:"（語錄）",c:"創造",h:"你在什麼事情上太害怕失敗，以至於從未開始？"},
+  {id:24,zh:"你害怕孤單，但你更害怕的是真正了解自己。",en:"Loneliness is the poverty of self; solitude is the richness of self.",a:"梅·沙頓",an:"May Sarton",w:"《獨居日記》",c:"孤獨",h:"試著把孤單看成一個珍貴的邀請，而不是一種懲罰。"},
+  {id:25,zh:"你的傷口，是光進入你的地方。",en:"The wound is the place where the light enters you.",a:"魯米",an:"Rumi",w:"（詩集）",c:"療癒",h:"你現在的脆弱，說不定正是某種力量的入口。"},
+  {id:26,zh:"如果你不知道去哪裡，任何一條路都會帶你到那裡。",en:"If you don't know where you are going, any road will get you there.",a:"劉易斯·卡羅爾",an:"Lewis Carroll",w:"《愛麗絲夢遊仙境》",c:"方向",h:"你目前最需要的，是更多選項，還是更清楚的方向？"},
+  {id:27,zh:"憤怒是你對自己有期待的證明。",en:"Anger is just disappointment that's had time to curdle.",a:"布芮尼·布朗",an:"Brené Brown",w:"《全心投入》",c:"情緒",h:"你的憤怒底下，藏著什麼樣的期待？"},
+  {id:28,zh:"你在生命的每個階段，都需要不同版本的勇氣。",en:"Courage doesn't always roar. Sometimes it's the quiet voice at the end of the day saying 'I will try again tomorrow.'",a:"瑪麗·安·拉德馬赫",an:"Mary Anne Radmacher",w:"（語錄）",c:"勇氣",h:"今天，你的勇氣是什麼形狀的？"},
+  {id:29,zh:"失去的東西不一定是壞事，它騰出了空間。",en:"Every loss reveals what was always already there.",a:"莎朗·薩爾茲堡",an:"Sharon Salzberg",w:"《真實的快樂》",c:"失去",h:"你失去的那件事，讓出了什麼空間？"},
+  {id:30,zh:"你已經足夠了，即使你不相信。",en:"You alone are enough. You have nothing to prove to anybody.",a:"馬雅·安傑洛",an:"Maya Angelou",w:"（語錄）",c:"自我",h:"你要向誰證明什麼？那個人真的值得你這樣做嗎？"},
+  {id:31,zh:"最好的故事，是那些你沒預料到會改變你的故事。",en:"A reader lives a thousand lives before he dies. The man who never reads lives only one.",a:"喬治·R·R·馬丁",an:"George R.R. Martin",w:"《冰與火之歌》",c:"閱讀",h:"你上一次被一個故事改變，是什麼時候？"},
+  {id:32,zh:"真正的溝通，是讓另一個人感覺被看見。",en:"People will forget what you said, but they will never forget how you made them feel.",a:"馬雅·安傑洛",an:"Maya Angelou",w:"（語錄）",c:"溝通",h:"你上一次真正讓某人感覺被看見，是什麼時候？"},
+  {id:33,zh:"所有的焦慮，都是把未來的重量搬到了現在。",en:"Anxiety is the dizziness of freedom.",a:"索倫·齊克果",an:"Søren Kierkegaard",w:"《焦慮的概念》",c:"焦慮",h:"把你的注意力拉回此刻。現在這一分鐘，有問題嗎？"},
+  {id:34,zh:"有些人讀很多書，但沒有讀過自己。",en:"Most people are other people. Their thoughts are someone else's opinions.",a:"奧斯卡·王爾德",an:"Oscar Wilde",w:"《靈魂人》",c:"自知",h:"你的想法，有多少是真正屬於你自己的？"},
+  {id:35,zh:"你的邊界不是牆，是門——你決定誰可以進來。",en:"Daring to set boundaries is about having the courage to love ourselves, even when we risk disappointing others.",a:"布芮尼·布朗",an:"Brené Brown",w:"《脆弱的力量》",c:"界限",h:"你是否允許自己劃定某個界限，而不對此感到愧疚？"},
+  {id:36,zh:"你正在做的事，五年後回頭看，會感謝自己嗎？",en:"The most common form of despair is not being who you are.",a:"保羅·科埃略",an:"Paulo Coelho",w:"《牧羊少年》",c:"選擇",h:"用未來的眼光看現在，答案往往更清楚。"},
+  {id:37,zh:"真正的聆聽，是放下你的回應。",en:"Most people do not listen with the intent to understand; they listen with the intent to reply.",a:"史蒂芬·柯維",an:"Stephen Covey",w:"《高效能人士的七個習慣》",c:"溝通",h:"你上一次純粹聆聽，沒有準備回答，是什麼時候？"},
+  {id:38,zh:"你能控制的，只有現在你選擇做什麼。",en:"You can't go back and change the beginning, but you can start where you are and change the ending.",a:"C·S·路易斯",an:"C.S. Lewis",w:"（語錄）",c:"行動",h:"你現在能做的那一小步，是什麼？"},
+  {id:39,zh:"所有的比較，都是某種形式的暴力。",en:"Comparison is the thief of joy.",a:"西奧多·羅斯福",an:"Theodore Roosevelt",w:"（語錄）",c:"自我",h:"你在和誰比較？那個比較讓你更好，還是更痛？"},
+  {id:40,zh:"你不需要等到不再害怕，才開始行動。",en:"Do one thing every day that scares you.",a:"艾蓮諾·羅斯福",an:"Eleanor Roosevelt",w:"（語錄）",c:"勇氣",h:"你在等什麼才願意開始？那個條件，也許永遠不會到來。"},
+  {id:41,zh:"每一個你討厭的人，都在教你一件關於自己的事。",en:"Everything that irritates us about others can lead us to an understanding of ourselves.",a:"卡爾·榮格",an:"Carl Jung",w:"（語錄）",c:"人際",h:"那個讓你反感的人，正在映照你身上的什麼？"},
+  {id:42,zh:"你給予愛的方式，往往是你希望被愛的方式。",en:"We give what we want to receive.",a:"蓋瑞·查普曼",an:"Gary Chapman",w:"《愛之語》",c:"愛",h:"你是否用自己想要的方式在愛對方，而不是對方需要的方式？"},
+  {id:43,zh:"沒有什麼是永久的，包括你的困境。",en:"This too shall pass.",a:"波斯諺語",an:"Persian Proverb",w:"—",c:"時間",h:"你現在感覺很重的事，一年後還有多重？"},
+  {id:44,zh:"你的想像力是你未來的預告片。",en:"Your imagination is your preview of life's coming attractions.",a:"亞伯特·愛因斯坦",an:"Albert Einstein",w:"（語錄）",c:"創造",h:"你最近想像過你真正想要的未來是什麼樣嗎？"},
+  {id:45,zh:"羞恥活在沉默裡，它最怕的是被說出口。",en:"Shame cannot survive being spoken and met with empathy.",a:"布芮尼·布朗",an:"Brené Brown",w:"《脆弱的力量》",c:"情緒",h:"你有什麼事情，因為羞恥而一直沒說出口？"},
+  {id:46,zh:"所謂成熟，是學會帶著矛盾繼續前進。",en:"The test of a first-rate intelligence is the ability to hold two opposed ideas in mind at the same time.",a:"費茲傑羅",an:"F. Scott Fitzgerald",w:"《崩潰》",c:"成長",h:"你現在的矛盾，是否可以不需要被解決，而是被接受？"},
+  {id:47,zh:"你選擇說什麼，以及選擇不說什麼，同樣重要。",en:"Speak only if it improves upon the silence.",a:"甘地",an:"Gandhi",w:"（語錄）",c:"語言",h:"你現在有什麼話，說出來會更好，還是沉默更好？"},
+  {id:48,zh:"真正的自由，是能選擇不被情緒支配。",en:"Freedom is not the absence of commitments, but the ability to choose.",a:"保羅·科埃略",an:"Paulo Coelho",w:"《薇羅尼卡決定死亡》",c:"自由",h:"你此刻有多少選擇的空間？那個空間，你用了嗎？"},
+  {id:49,zh:"你愛的人離開了，但你愛的能力沒有。",en:"The heart was made to be broken.",a:"奧斯卡·王爾德",an:"Oscar Wilde",w:"（語錄）",c:"失去",h:"你的心碎說明你的心還在跳動。這是一種力量。"},
+  {id:50,zh:"你的人生不需要一個觀眾。",en:"You don't need another person's permission to live your life.",a:"索妮雅·弗里徹爾",an:"Sonya Friedman",w:"（語錄）",c:"自我",h:"你正在為誰而活？那個人，值得嗎？"},
+  {id:51,zh:"疲憊有時候不是因為努力太多，而是因為意義太少。",en:"A person who has a why can bear almost any how.",a:"維克多·弗蘭克",an:"Viktor Frankl",w:"《活出意義來》",c:"意義",h:"你的疲憊，是否因為你做的事不再讓你感覺有意義？"},
+  {id:52,zh:"無聊是靈魂在敲門。",en:"Boredom is just the reverse side of fascination.",a:"羅蘭·巴特",an:"Roland Barthes",w:"（語錄）",c:"覺察",h:"你上一次真正感到無聊，反而找到了什麼？"},
+  {id:53,zh:"你現在的痛苦，正在打開你某個部分。",en:"The most beautiful people we have known are those who have known defeat, known suffering, known struggle.",a:"伊莉莎白·庫伯勒·羅斯",an:"Elisabeth Kübler-Ross",w:"《死亡與臨終》",c:"成長",h:"這份痛在打開你的什麼？讓它進來。"},
+  {id:54,zh:"你一直在等一個完美的時機，但完美的時機不存在。",en:"A year from now you may wish you had started today.",a:"凱倫·蘭姆",an:"Karen Lamb",w:"（語錄）",c:"行動",h:"如果不等了，現在就開始，你會做什麼？"},
+  {id:55,zh:"你的故事還沒有結束，這句話本身就是一種力量。",en:"You are not the author of your story, but you are the narrator.",a:"尼爾·蓋曼",an:"Neil Gaiman",w:"（語錄）",c:"希望",h:"你正在用什麼語氣敘述你自己的故事？"},
+  {id:56,zh:"大多數人從不去做他們想做的事，這就是為什麼世界充滿了憤怒的陌生人。",en:"Most people are not going after what they want. Even some of the most motivated people are chasing the wrong thing.",a:"查爾斯·布考斯基",an:"Charles Bukowski",w:"（詩集）",c:"慾望",h:"你真正想要什麼？不是應該要的，是真正想要的。"},
+  {id:57,zh:"完全的接受，才是真正的改變的開始。",en:"What you resist, persists. What you accept, transforms.",a:"卡爾·榮格",an:"Carl Jung",w:"（語錄）",c:"療癒",h:"試著接受你一直抗拒的那件事，看看會發生什麼。"},
+  {id:58,zh:"你的好奇心，比你的恐懼更古老。",en:"Curiosity is one of the permanent and certain characteristics of a vigorous intellect.",a:"伊莉莎白·吉兒伯特",an:"Elizabeth Gilbert",w:"《創作，是心靈的旅程》",c:"好奇",h:"你最近有沒有因為好奇某件事，而感到一點點興奮？"},
+  {id:59,zh:"不是每個人都值得你的解釋。",en:"Never explain yourself. Your friends don't need it, and your enemies won't believe it.",a:"亞比蓋爾·凡比倫",an:"Abigail Van Buren",w:"（語錄）",c:"人際",h:"你花了多少時間和精力，在向不需要解釋的人解釋自己？"},
+  {id:60,zh:"你所有的答案，都已經在你身上，只是還沒被問到對的問題。",en:"The quality of your life is determined by the quality of your questions.",a:"東尼·羅賓斯",an:"Tony Robbins",w:"（語錄）",c:"自知",h:"你今天問過自己什麼問題？那個問題的品質如何？"},
+  {id:61,zh:"留下來，是一種需要學習的技能。",en:"The most radical thing any of us can do is to stay present.",a:"韋倫·貝里",an:"Wendell Berry",w:"（詩集）",c:"當下",h:"你此刻在哪裡？真正的在。"},
+  {id:62,zh:"你不必理解每件事，你只需要走下去。",en:"Not everything that is faced can be changed, but nothing can be changed until it is faced.",a:"詹姆斯·鮑德溫",an:"James Baldwin",w:"（語錄）",c:"前行",h:"先走，答案會在路上出現。"},
+  {id:63,zh:"你可以擁有一段關係，也擁有你自己。",en:"The most important relationship in your life is the relationship you have with yourself.",a:"黛安·馮芙絲汀寶",an:"Diane Von Furstenberg",w:"（語錄）",c:"關係",h:"你有沒有在一段關係裡失去了自己？那個自己，還找得到嗎？"},
+  {id:64,zh:"創傷不是你的錯，但痊癒是你的責任。",en:"Healing is not linear.",a:"貝塞爾·范德寇克",an:"Bessel van der Kolk",w:"《心靈的傷，身體會記住》",c:"療癒",h:"你是否允許自己去療癒，而不只是繼續撐著？"},
+  {id:65,zh:"真正的親密，始於你能說出你不確定的事。",en:"Vulnerability is not weakness. It's our greatest measure of courage.",a:"布芮尼·布朗",an:"Brené Brown",w:"《脆弱的力量》",c:"關係",h:"你上一次對某人說「我不確定」或「我需要幫助」，是什麼時候？"},
+  {id:66,zh:"你對自己說的話，比任何人對你說的話都重要。",en:"Talk to yourself like you would to someone you love.",a:"布芮尼·布朗",an:"Brené Brown",w:"（語錄）",c:"自我",h:"此刻，你正在用什麼語氣和自己說話？"},
+  {id:67,zh:"一個故事的結局，也是另一個故事的開始。",en:"Every ending is a new beginning.",a:"特里·普拉切特",an:"Terry Pratchett",w:"《碟形世界》",c:"轉化",h:"你正在結束的事，在告訴你什麼事即將開始？"},
+  {id:68,zh:"你最深的恐懼，不是你不夠好，而是你無比強大。",en:"Our deepest fear is not that we are inadequate. Our deepest fear is that we are powerful beyond measure.",a:"瑪麗安·威廉森",an:"Marianne Williamson",w:"《回歸愛》",c:"力量",h:"如果你完全相信自己的力量，你會做什麼不同的決定？"},
+  {id:69,zh:"你不是為了讓每個人舒服而存在的。",en:"You were not put on this earth to make other people comfortable.",a:"克莉斯汀·多爾",an:"Christine Dore",w:"（語錄）",c:"界限",h:"你是否習慣縮小自己，以免讓別人不舒服？"},
+  {id:70,zh:"你學會放手的速度，決定了你成長的速度。",en:"Letting go is not the end. It's the beginning of a new chapter.",a:"阿提克斯",an:"Atticus",w:"《愛情詩》",c:"放下",h:"你現在緊握著什麼不放？放開它，會怎樣？"},
+  {id:71,zh:"沉默有時候是最誠實的答案。",en:"Silence is a source of great strength.",a:"老子",an:"Laozi",w:"《道德經》",c:"語言",h:"你的沉默，是智慧，還是逃避？"},
+  {id:72,zh:"所有的衝突，都是一個尚未被滿足的需求在吶喊。",en:"Behind every behavior is a need.",a:"馬歇爾·盧森堡",an:"Marshall Rosenberg",w:"《非暴力溝通》",c:"溝通",h:"在這個衝突背後，你真正的需求是什麼？"},
+  {id:73,zh:"你不是你媽媽，你不是你爸爸，你是你自己。",en:"You are not your parents' patterns unless you choose to be.",a:"馬克·沃爾林",an:"Mark Wolynn",w:"《這不是你的錯》",c:"成長",h:"你有哪些行為模式，是從家庭帶來的，但不再適合現在的你？"},
+  {id:74,zh:"你已經倖存了你以為會打倒你的每一件事。",en:"You have survived everything that has happened to you so far.",a:"（廣泛引用）",an:"（Widely Attributed）",w:"—",c:"韌性",h:"回頭看看你走過的那些「不可能」，你比你以為的更強韌。"},
+  {id:75,zh:"快樂不在於獲得更多，而是在於需要得更少。",en:"Contentment is natural wealth; luxury is artificial poverty.",a:"蘇格拉底",an:"Socrates",w:"（語錄）",c:"知足",h:"你現在已有的，比你注意到的更多嗎？"},
+  {id:76,zh:"你的注意力，是你最稀缺的資源。",en:"Where attention goes, energy flows.",a:"詹姆斯·瑞德菲爾德",an:"James Redfield",w:"《聖境預言書》",c:"覺察",h:"你此刻的注意力在哪裡？它在幫助你，還是消耗你？"},
+  {id:77,zh:"有些事情不是你做錯了，只是時間不對。",en:"Timing is everything.",a:"（廣泛引用）",an:"—",w:"—",c:"時機",h:"你是否曾怪罪自己，但其實只是時間點的問題？"},
+  {id:78,zh:"你越接受自己的不完整，越能和別人真正連結。",en:"Imperfections are not inadequacies; they are reminders that we're all in this together.",a:"布芮尼·布朗",an:"Brené Brown",w:"《不完美的禮物》",c:"連結",h:"你隱藏著哪個你認為不完美的部分？那個部分，可能讓人更愛你。"},
+  {id:79,zh:"勇敢不是不害怕，而是你決定害怕也要做。",en:"Courage is resistance to fear, mastery of fear — not absence of fear.",a:"馬克·吐溫",an:"Mark Twain",w:"（語錄）",c:"勇氣",h:"帶著你的恐懼，還是繼續。"},
+  {id:80,zh:"你所擁有的這個當下，就是你整個人生的全部。",en:"The present moment is all you ever have.",a:"埃克哈特·托勒",an:"Eckhart Tolle",w:"《當下的力量》",c:"當下",h:"把所有的重量都放下，只活在這一分鐘裡。你感覺到什麼？"},
+  {id:81,zh:"一個人有多自由，取決於他不需要別人認可的程度。",en:"Care about what other people think and you will always be their prisoner.",a:"老子",an:"Laozi",w:"《道德經》",c:"自由",h:"你現在被誰的眼光困住了？"},
+  {id:82,zh:"對不起和謝謝你，是世界上最難說出口的兩句話。",en:"The two hardest things to say are 'I'm sorry' and 'Thank you.'",a:"（廣泛引用）",an:"—",w:"—",c:"溝通",h:"你有什麼話，已經欠了很久，還沒說出口？"},
+  {id:83,zh:"你最需要的改變，往往是你最抗拒的那個。",en:"The things that make me different are the things that make me.",a:"A·A·米恩",an:"A.A. Milne",w:"《小熊維尼》",c:"改變",h:"你最抗拒的那個改變，如果做了，會帶來什麼？"},
+  {id:84,zh:"你的身體一直在告訴你真相，你只是沒在聽。",en:"The body keeps the score.",a:"貝塞爾·范德寇克",an:"Bessel van der Kolk",w:"《心靈的傷，身體會記住》",c:"覺察",h:"你的身體現在有什麼感覺？那個感覺在說什麼？"},
+  {id:85,zh:"你不需要一個計畫，你只需要一個方向。",en:"A good traveler has no fixed plans and is not intent on arriving.",a:"老子",an:"Laozi",w:"《道德經》",c:"方向",h:"如果不需要一個完整的計畫，只是往一個大方向走，你會往哪走？"},
+  {id:86,zh:"愛不是找到一個完美的人，而是學著完美地愛一個不完美的人。",en:"Love is not about finding the right person, but creating the right relationship.",a:"山姆·基恩",an:"Sam Keen",w:"（語錄）",c:"愛",h:"在你在乎的關係裡，你願意承擔哪些不完美？"},
+  {id:87,zh:"你的直覺是你最早知道答案的那個部分。",en:"The intuitive mind is a sacred gift and the rational mind is a faithful servant.",a:"亞伯特·愛因斯坦",an:"Albert Einstein",w:"（語錄）",c:"直覺",h:"在這件事上，你的直覺第一時間告訴了你什麼？"},
+  {id:88,zh:"放棄你的故事，比放棄你的夢想更難。",en:"It's not the events of our lives that shape us, but our beliefs as to what those events mean.",a:"東尼·羅賓斯",an:"Tony Robbins",w:"（語錄）",c:"敘事",h:"你對自己這件事的解讀，是唯一的解讀嗎？"},
+  {id:89,zh:"你的沉默，有時候保護了你，但也囚禁了你。",en:"In the end, we will remember not the words of our enemies, but the silence of our friends.",a:"馬丁·路德·金",an:"Martin Luther King Jr.",w:"（演講）",c:"表達",h:"有什麼話，你的沉默正在付出代價？"},
+  {id:90,zh:"所有真正的美麗，都有一點點憂傷。",en:"There is a crack in everything; that's how the light gets in.",a:"李歐納·柯恩",an:"Leonard Cohen",w:"《安東尼》",c:"美",h:"你覺得自己哪裡有裂縫？那個裂縫，或許正是你最獨特的地方。"},
+  {id:91,zh:"你可以同時擁有兩種看似矛盾的感覺。",en:"You can be both a masterpiece and a work in progress simultaneously.",a:"蘇菲·布塞爾",an:"Sophia Bushell",w:"（語錄）",c:"成長",h:"你現在有哪兩種看似矛盾但同時存在的感受？"},
+  {id:92,zh:"你對某事的抗拒，洩露了它對你的重要性。",en:"Whatever you're meant to do, do it now. The conditions are always impossible.",a:"多麗絲·萊辛",an:"Doris Lessing",w:"《金色筆記》",c:"動機",h:"你最抗拒的那件事，為什麼對你如此重要？"},
+  {id:93,zh:"沒有人能給你你沒有先給自己的東西。",en:"You can't pour from an empty cup.",a:"（廣泛引用）",an:"—",w:"—",c:"自我照顧",h:"你最近有沒有好好照顧自己？你的杯子，現在是空的還是滿的？"},
+  {id:94,zh:"你的邊界，定義了你是誰。",en:"Boundaries are a part of self-care. They are healthy, normal and necessary.",a:"依莎貝爾·艾葉端",an:"Isabel Allende",w:"（語錄）",c:"界限",h:"你目前最需要設立的一個界限，是什麼？"},
+  {id:95,zh:"越誠實，越孤獨，但也越自由。",en:"The truth will set you free, but first it will piss you off.",a:"葛洛麗亞·斯泰因南",an:"Gloria Steinem",w:"（語錄）",c:"真實",h:"有什麼事，你一直沒對自己誠實？"},
+  {id:96,zh:"你正在尋找的答案，就在你願意停下來的那個問題裡。",en:"The unexamined life is not worth living.",a:"蘇格拉底",an:"Socrates",w:"（辯護詞）",c:"自知",h:"今天，你願意為自己停下來，問一個真正的問題嗎？"},
+  {id:97,zh:"所有的嫉妒，都是一個未被承認的願望。",en:"Jealousy is just love and hate at the same time.",a:"德瑞克",an:"Drake",w:"《過得如何》",c:"情緒",h:"你最近對誰感到嫉妒？那份嫉妒告訴你，你真正想要的是什麼？"},
+  {id:98,zh:"你的人生是一首詩，不是一份待辦清單。",en:"You are not a problem to be solved.",a:"約翰·歐多諾霍",an:"John O'Donohue",w:"《靈魂之地》",c:"生命",h:"如果把你的人生當成一首詩，這一段是在說什麼？"},
+  {id:99,zh:"真正的勇氣，是在沒有掌聲的時候繼續。",en:"Do it even when no one is watching.",a:"（廣泛引用）",an:"—",w:"—",c:"堅持",h:"你有沒有某件事，沒有人知道你在做，但你仍然在做？"},
+  {id:100,zh:"你已經足夠了，就在此刻，就是現在的你。",en:"You are enough. A thousand times enough.",a:"（廣泛引用）",an:"—",w:"—",c:"自我",h:"此刻，不加任何條件，你願意對自己說一次「我已經足夠了」嗎？"},
+];
+
+let used=new Set(), hist=[], total=0, isFlipping=false;
+let currentQ=null;
+
+// Smart Chinese typesetting: break at natural punctuation boundaries
+function smartBreakZh(str) {
+  // For short strings (≤14 chars): render as-is, let CSS handle
+  if (str.length <= 14) return str;
+
+  // Break points: Chinese commas, pauses, and logical conjunctions
+  // Strategy: find a split point near the middle that lands on punctuation or after a clause
+  const breakMarkers = ['，', '。', '；', '：', '——', '—', '、', '但', '而', '卻', '則', '就', '不', '只'];
+
+  const half = Math.floor(str.length / 2);
+  let bestIdx = -1;
+  let bestDist = Infinity;
+
+  // Search within a window around the midpoint
+  for (let i = Math.max(1, half - 8); i < Math.min(str.length - 1, half + 8); i++) {
+    for (const marker of breakMarkers) {
+      if (str.slice(i, i + marker.length) === marker) {
+        const dist = Math.abs(i - half);
+        if (dist < bestDist) {
+          bestDist = dist;
+          // Break AFTER punctuation, or BEFORE conjunction words
+          const isPunct = ['，','。','；','：','——','—','、'].includes(marker);
+          bestIdx = isPunct ? i + marker.length : i;
+        }
+      }
+    }
+  }
+
+  // If we found a clean break point
+  if (bestIdx > 0 && bestDist < 10) {
+    const line1 = str.slice(0, bestIdx).trimEnd();
+    const line2 = str.slice(bestIdx).trimStart();
+    // Recurse if either part is still very long
+    if (line2.length > 18) {
+      return line1 + '<br>' + smartBreakZh(line2);
+    }
+    return line1 + '<br>' + line2;
+  }
+
+  // Fallback: hard break at midpoint on a character boundary
+  return str.slice(0, half) + '<br>' + str.slice(half);
+}
+
+// Smart hint break — break at sentence-ending punctuation
+function smartBreakHint(str) {
+  if (str.length <= 20) return str;
+  // Replace 。 with 。<br> for hint sentences, but not last sentence
+  const parts = str.split(/(?<=。)(?!$)/);
+  if (parts.length > 1) {
+    return parts.join('<br>');
+  }
+  // Break at ，if sentence is long
+  if (str.length > 24) {
+    return smartBreakZh(str);
+  }
+  return str;
+}
+
+function buildLeftContent(q, el){
+  el.innerHTML=`
+    <div class="pg-no">No.${String(q.id).padStart(3,'0')}</div>
+    <div class="pg-author">${q.a}</div>
+    <div class="pg-author-en">${q.an}</div>
+    <div class="pg-work">${q.w}</div>
+    <div class="pg-tag">${q.c}</div>
+    <div class="pg-hint">${smartBreakHint(q.h)}</div>
+  `;
+}
+
+function buildRightContent(q, el){
+  el.innerHTML=`
+    <div class="pg-quote-zh">${smartBreakZh(q.zh)}</div>
+    <div class="pg-dash"></div>
+    <div class="pg-quote-en">${q.en}</div>
+  `;
+}
+
+function drawQuote(){
+  if(isFlipping) return;
+  isFlipping=true;
+
+  const btn=document.getElementById('drawBtn');
+  btn.disabled=true;
+
+  let pool=Q.filter(x=>!used.has(x.id));
+  if(!pool.length){used.clear();pool=[...Q];}
+  const q=pool[Math.floor(Math.random()*pool.length)];
+  used.add(q.id);
+  total++;
+  hist.unshift(q);
+  if(hist.length>6)hist.pop();
+  currentQ=q;
+
+  const idleCover=document.getElementById('idleCover');
+  const spread=document.getElementById('spread');
+  const turningPage=document.getElementById('turningPage');
+  const turningFrontContent=document.getElementById('turningFrontContent');
+  const turningBackContent=document.getElementById('turningBackContent');
+
+  // First time: reveal spread from cover
+  if(spread.style.opacity==='0'){
+    // Populate turning front with the new right content
+    buildRightContent(q, turningFrontContent);
+    // Populate turning back with the new left content
+    buildLeftContent(q, turningBackContent);
+    // Set static spread (will be revealed under the flip)
+    buildLeftContent(q, document.getElementById('leftContent'));
+    buildRightContent(q, document.getElementById('rightContent'));
+
+    // Hide cover
+    idleCover.classList.add('hidden');
+
+    // Show spread immediately (it'll be covered by turning page)
+    spread.style.opacity='1';
+
+    // Turning page starts as the full right page, then flips
+    turningPage.style.display='block';
+    turningPage.classList.remove('flip');
+
+    setTimeout(()=>{
+      turningPage.classList.add('flip');
+    }, 80);
+
+    setTimeout(()=>{
+      turningPage.style.display='none';
+      isFlipping=false;
+      btn.disabled=false;
+      renderCount();
+      renderHist();
+    }, 820);
+
+    return;
+  }
+
+  // Subsequent draws: standard page flip
+  // Turning front = OLD right page content
+  turningFrontContent.innerHTML=document.getElementById('rightContent').innerHTML;
+  // Turning back = NEW left page content
+  buildLeftContent(q, turningBackContent);
+
+  // Reset flip
+  turningPage.classList.remove('flip');
+  turningPage.style.display='block';
+
+  // Trigger flip
+  setTimeout(()=>{ turningPage.classList.add('flip'); }, 30);
+
+  // At halfway point, swap static content behind
+  setTimeout(()=>{
+    buildLeftContent(q, document.getElementById('leftContent'));
+    buildRightContent(q, document.getElementById('rightContent'));
+  }, 380);
+
+  setTimeout(()=>{
+    turningPage.style.display='none';
+    isFlipping=false;
+    btn.disabled=false;
+    renderCount();
+    renderHist();
+  }, 760);
+}
+
+function renderCount(){
+  document.getElementById('drawCount').textContent=
+    `已翻 ${total} 頁　剩餘 ${Q.length-used.size} 則`;
+  document.getElementById('prompt').textContent='再翻一頁，遇見下一句';
+}
+
+function renderHist(){
+  const el=document.getElementById('history');
+  const prev=hist.slice(1);
+  if(!prev.length)return;
+  el.classList.add('in');
+  el.innerHTML=prev.map(q=>
+    `<span class="hchip" onclick="reshowQ(${q.id})">No.${String(q.id).padStart(3,'0')} ${q.a.split('·')[0].trim()}</span>`
+  ).join('');
+}
+
+function reshowQ(id){
+  if(isFlipping)return;
+  const q=Q.find(x=>x.id===id);
+  if(!q)return;
+  isFlipping=true;
+  currentQ=q;
+
+  const turningPage=document.getElementById('turningPage');
+  const turningFrontContent=document.getElementById('turningFrontContent');
+  const turningBackContent=document.getElementById('turningBackContent');
+
+  turningFrontContent.innerHTML=document.getElementById('rightContent').innerHTML;
+  buildLeftContent(q,turningBackContent);
+  turningPage.classList.remove('flip');
+  turningPage.style.display='block';
+  setTimeout(()=>turningPage.classList.add('flip'),30);
+  setTimeout(()=>{
+    buildLeftContent(q,document.getElementById('leftContent'));
+    buildRightContent(q,document.getElementById('rightContent'));
+  },380);
+  setTimeout(()=>{
+    turningPage.style.display='none';
+    isFlipping=false;
+  },760);
+}
+</script>
+</body>
+</html>
