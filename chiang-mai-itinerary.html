@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>清邁 6天5夜 · 慢活之旅</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=DM+Serif+Display:ital@0;1&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #A8C97A;
+    --gold-light: #C8E8A0;
+    --deep: #0F1A0D;
+    --bg: #111D0F;
+    --bg2: #162014;
+    --cream: #EEF5E8;
+    --forest: #2D5A27;
+    --forest-light: #3D7A35;
+    --moss: #5A8A4A;
+    --sage: #8AB87A;
+    --bark: #6B8B5A;
+    --mist: #C8DFB8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    padding: 60px 20px;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 60%, rgba(45,90,39,0.45) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 25%, rgba(61,122,53,0.35) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 90%, rgba(90,138,74,0.25) 0%, transparent 50%),
+      #0A1208;
+    z-index: 0;
+  }
+
+  .hero-pattern {
+    position: absolute; inset: 0;
+    background-image:
+      repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(90,138,74,0.04) 40px, rgba(90,138,74,0.04) 41px),
+      repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(90,138,74,0.04) 40px, rgba(90,138,74,0.04) 41px);
+    z-index: 0;
+  }
+
+  .hero-content { position: relative; z-index: 1; }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    border: 1px solid rgba(168,201,122,0.45);
+    padding: 6px 20px;
+    margin-bottom: 28px;
+    background: rgba(45,90,39,0.2);
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    line-height: 1;
+    color: #fff;
+    animation: fadeUp 0.8s 0.15s ease both;
+    text-shadow: 0 2px 30px rgba(45,90,39,0.5);
+  }
+
+  .hero h1 span { color: var(--gold-light); font-style: italic; }
+
+  .hero-sub {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    color: var(--mist);
+    margin-top: 12px;
+    letter-spacing: 0.1em;
+    animation: fadeUp 0.8s 0.25s ease both;
+  }
+
+  .hero-desc {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    color: rgba(200,223,184,0.55);
+    margin-top: 8px;
+    animation: fadeUp 0.8s 0.35s ease both;
+  }
+
+  .hero-dates {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    margin-top: 40px;
+    animation: fadeUp 0.8s 0.45s ease both;
+  }
+
+  .hero-date-pill {
+    background: rgba(45,90,39,0.3);
+    border: 1px solid rgba(168,201,122,0.35);
+    padding: 8px 20px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--mist);
+    border-radius: 2px;
+  }
+
+  .scroll-hint { display: none; }
+
+  .timeline-line { display: none; }
+
+  .section-label {
+    text-align: center;
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(168,201,122,0.65);
+    margin-bottom: 60px;
+  }
+
+  /* DAY CARD */
+  .day-block {
+    margin-bottom: 20px;
+    opacity: 0; transform: translateY(30px);
+    transition: all 0.6s ease;
+  }
+  .day-block.visible { opacity: 1; transform: translateY(0); }
+
+  .day-header {
+    display: flex; align-items: center; gap: 0; cursor: pointer;
+    position: relative;
+  }
+
+  .day-num-wrap {
+    position: relative; z-index: 1;
+    width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 6px;
+  }
+
+  .day-num {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    border: 2px solid var(--color);
+    background: #0F1A0D;
+    flex-shrink: 0;
+    transition: all 0.3s;
+    position: relative; z-index: 2;
+  }
+
+  .day-num .dn-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.5rem; letter-spacing: 0.2em;
+    color: var(--color); text-transform: uppercase;
+    line-height: 1;
+  }
+  .day-num .dn-number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem; line-height: 1; color: var(--color);
+    font-style: italic;
+  }
+
+  .day-card {
+    border: 1px solid rgba(var(--color-rgb), 0.3);
+    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(var(--color-rgb), 0.08) 0%, rgba(15,26,13,0.85) 60%);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.35s;
+    position: relative;
+  }
+  .day-card:hover { border-color: rgba(var(--color-rgb), 0.55); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
+  .day-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--color), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .day-card:hover::before, .day-card.active::before { opacity: 1; }
+
+  .card-header {
+    display: flex; align-items: center;
+    padding: 18px 20px;
+    gap: 16px;
+  }
+
+  .card-day-info { flex-shrink: 0; }
+  .card-day-tag {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--color); margin-bottom: 0;
+  }
+
+  .card-title-area { flex: 1; }
+  .card-theme {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.4;
+    margin-bottom: 6px;
+  }
+  .card-stops { display: flex; flex-wrap: wrap; gap: 6px; }
+  .stop-pill {
+    font-size: 0.65rem; letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border: 1px solid rgba(var(--color-rgb), 0.35);
+    color: rgba(200,223,184,0.65);
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+  .day-card:hover .stop-pill { border-color: rgba(var(--color-rgb), 0.6); }
+
+  .card-toggle {
+    width: 24px; height: 24px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(var(--color-rgb), 0.3);
+    border-radius: 50%;
+    color: var(--color); font-size: 0.7rem;
+    transition: all 0.3s; margin-top: 2px;
+  }
+  .day-card.active .card-toggle { transform: rotate(45deg); background: rgba(var(--color-rgb), 0.1); }
+
+  /* EXPANDED PANEL */
+  .card-panel {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1);
+    border-top: 1px solid transparent;
+  }
+  .day-card.active .card-panel {
+    max-height: 3000px;
+    border-top-color: rgba(var(--color-rgb), 0.15);
+  }
+
+  .panel-inner { padding: 24px; }
+
+  /* STOPS GRID */
+  .stops-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px; margin-bottom: 20px;
+  }
+
+  .stop-card {
+    background: rgba(15,26,13,0.6); border: 1px solid rgba(90,138,74,0.18);
+    border-radius: 4px; overflow: hidden;
+    transition: all 0.25s; cursor: pointer;
+  }
+  .stop-card:hover { border-color: rgba(var(--color-rgb), 0.45); transform: translateY(-2px); }
+
+  .stop-card-top {
+    padding: 14px 14px 10px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .stop-icon {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(var(--color-rgb), 0.15);
+    font-size: 1rem; flex-shrink: 0;
+  }
+  .stop-info { flex: 1; }
+  .stop-name {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 2px;
+  }
+  .stop-type { font-size: 0.65rem; color: var(--color); letter-spacing: 0.08em; }
+
+  .stop-desc { font-size: 0.72rem; color: rgba(200,223,184,0.5); line-height: 1.5; padding: 0 14px 12px; }
+  .stop-rating {
+    padding: 8px 14px;
+    background: rgba(var(--color-rgb), 0.07);
+    border-top: 1px solid rgba(90,138,74,0.12);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .rating-stars { color: var(--gold); font-size: 0.7rem; }
+  .rating-num { font-size: 0.68rem; color: rgba(200,223,184,0.4); }
+  .map-btn {
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--color); background: none; border: 1px solid rgba(var(--color-rgb), 0.3);
+    padding: 4px 10px; border-radius: 2px; cursor: pointer;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+    transition: all 0.2s;
+  }
+  .map-btn:hover { background: rgba(var(--color-rgb), 0.15); border-color: rgba(var(--color-rgb), 0.6); }
+
+  /* DAY NOTE */
+  .day-note {
+    font-size: 0.72rem; color: rgba(200,223,184,0.45);
+    border-left: 2px solid rgba(var(--color-rgb), 0.45);
+    padding-left: 12px; margin-top: 4px; line-height: 1.7;
+  }
+
+  /* FLIGHT BANNER */
+  .flight-banner {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px;
+    background: rgba(45,90,39,0.15);
+    border: 1px solid rgba(90,138,74,0.25);
+    border-radius: 3px; margin-bottom: 16px;
+    font-size: 0.78rem;
+  }
+  .flight-icon { font-size: 1.2rem; }
+  .flight-detail { color: rgba(200,223,184,0.7); }
+  .flight-detail strong { color: var(--gold-light); font-family: 'DM Serif Display', serif; font-size: 0.95rem; }
+
+  /* MAP MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(5,12,5,0.88);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: #121D10; border: 1px solid rgba(90,138,74,0.35);
+    border-radius: 6px; overflow: hidden;
+    width: min(680px, 92vw);
+    transform: scale(0.95) translateY(20px);
+    transition: all 0.3s;
+    max-height: 90vh; display: flex; flex-direction: column;
+  }
+  .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+  .modal-header {
+    padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(90,138,74,0.2);
+  }
+  .modal-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 700; color: #fff; }
+  .modal-subtitle { font-size: 0.7rem; color: rgba(200,223,184,0.4); margin-top: 2px; }
+  .modal-close {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1px solid rgba(168,201,122,0.35); background: none; cursor: pointer;
+    color: var(--gold); font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: rgba(45,90,39,0.3); }
+  .modal-map { flex: 1; min-height: 320px; }
+  .modal-map iframe { width: 100%; height: 380px; border: none; display: block; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(90,138,74,0.2);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .modal-info { font-size: 0.72rem; color: rgba(200,223,184,0.5); }
+  .modal-info .rating { color: var(--gold); }
+  .modal-link {
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); text-decoration: none;
+    border: 1px solid rgba(168,201,122,0.4); padding: 8px 16px; border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .modal-link:hover { background: rgba(45,90,39,0.3); }
+
+  /* TIPS SECTION */
+  .tips-section {
+    border-top: 1px solid rgba(90,138,74,0.2);
+    padding: 60px 20px;
+    max-width: 900px; margin: 0 auto;
+  }
+  .tips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 30px; }
+  .tip-card {
+    padding: 18px; background: rgba(45,90,39,0.08);
+    border: 1px solid rgba(90,138,74,0.15); border-radius: 4px;
+  }
+  .tip-icon { font-size: 1.4rem; margin-bottom: 8px; }
+  .tip-title { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .tip-text { font-size: 0.72rem; line-height: 1.7; color: rgba(200,223,184,0.55); }
+
+  /* EXCHANGE SECTION */
+  .exchange-section {
+    border-top: 1px solid rgba(90,138,74,0.2);
+    padding: 60px 20px;
+    max-width: 900px; margin: 0 auto;
+  }
+  .exchange-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+  }
+  .exchange-crown { font-size: 1.4rem; }
+  .exchange-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.1rem; font-weight: 700; color: #fff;
+  }
+  .exchange-subtitle {
+    font-size: 0.7rem; color: rgba(200,223,184,0.4);
+    letter-spacing: 0.08em; margin-bottom: 28px;
+  }
+  .exchange-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;
+  }
+  .exchange-card {
+    background: rgba(15,26,13,0.7); border: 1px solid rgba(90,138,74,0.2);
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    transition: all 0.25s;
+  }
+  .exchange-card:hover { border-color: rgba(168,201,122,0.5); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+  .exchange-card-top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 14px 10px;
+  }
+  .exchange-rank {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(90,138,74,0.2); border: 1px solid rgba(168,201,122,0.35);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.85rem; color: var(--gold); flex-shrink: 0;
+  }
+  .exchange-name { font-size: 0.9rem; font-weight: 500; color: #fff; }
+  .exchange-badge {
+    font-size: 0.6rem; padding: 2px 8px;
+    border: 1px solid rgba(90,138,74,0.5); color: #8fd47a;
+    border-radius: 2px; margin-top: 2px; display: inline-block;
+  }
+  .exchange-badge.line { border-color: rgba(0,195,0,0.4); color: #4cd964; }
+  .exchange-meta {
+    padding: 0 14px 12px;
+    font-size: 0.68rem; color: rgba(200,223,184,0.45); line-height: 1.9;
+  }
+  .exchange-meta span { color: var(--gold-light); margin-right: 6px; }
+  .exchange-footer {
+    padding: 8px 14px; background: rgba(45,90,39,0.1);
+    border-top: 1px solid rgba(90,138,74,0.12);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .exchange-rating { font-size: 0.68rem; color: var(--gold); }
+  .exchange-rating-count { font-size: 0.62rem; color: rgba(200,223,184,0.35); }
+
+  /* FOOTER */
+  footer {
+    text-align: center; padding: 40px 20px;
+    border-top: 1px solid rgba(90,138,74,0.15);
+    font-size: 0.65rem; letter-spacing: 0.2em; color: rgba(168,201,122,0.35);
+    text-transform: uppercase;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scrollPulse {
+    0%,100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.1); }
+  }
+
+  @media (max-width: 600px) {
+    .stops-grid { grid-template-columns: 1fr; }
+    .timeline-line { left: 35px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-pattern"></div>
+  <div class="hero-content">
+    <div class="hero-tag">放鬆 · 美食 · 輕旅行</div>
+    <h1>清邁<span>Chiang Mai</span></h1>
+    <div class="hero-sub">6天5夜 · 五大一小的慢活之旅</div>
+    <div class="hero-desc">放慢腳步 · 感受文化 · 品味美食 · 享受快樂時光</div>
+    <div class="hero-dates">
+      <div class="hero-date-pill">🛫 去程 JX751｜5/7 13:20 → 16:20</div>
+      <div class="hero-date-pill">住宿 Villa Alanna · Nimman</div>
+      <div class="hero-date-pill">🛬 回程 JX752｜5/12 17:20 → 22:10</div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>探索行程</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline-section">
+  <div class="timeline-line"></div>
+  <div class="section-label">— 完整行程 · 點擊展開 —</div>
+
+  <!-- 天數資料由 JS 渲染 -->
+  <div id="timeline"></div>
+</section>
+
+<!-- EXCHANGE SECTION -->
+<section class="exchange-section">
+  <div class="section-label">— 換匯攻略 · 機場不划算，市區更推薦 —</div>
+  <div style="margin-top:30px">
+    <div class="exchange-header">
+      <span class="exchange-crown">👑</span>
+      <span class="exchange-title">清邁熱門換匯所推薦</span>
+    </div>
+    <div class="exchange-subtitle">換匯精明更划算，旅遊開心不心疼！點擊查看地圖位置</div>
+    <div class="exchange-grid" id="exchangeGrid"></div>
+  </div>
+</section>
+
+<!-- TIPS -->
+<section class="tips-section">
+  <div class="section-label">— 旅行亮點提示 —</div>
+  <div class="tips-grid">
+    <div class="tip-card">
+      <div class="tip-icon">🚕</div>
+      <div class="tip-title">叫車</div>
+      <div class="tip-text">推薦使用 <strong style="color:var(--gold)">Grab</strong> 或 <strong style="color:var(--gold)">Bolt</strong> 叫車，兩款都方便安全。Bolt 有時更便宜，可以比較再選！</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">☀️</div>
+      <div class="tip-title">防曬</div>
+      <div class="tip-text">清邁天氣熱，防曬乳必備，建議選 SPF 50+ 防水款。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">👖</div>
+      <div class="tip-title">穿著</div>
+      <div class="tip-text">進寺廟需著長褲或長裙，室內冷氣強，薄外套別忘。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">💱</div>
+      <div class="tip-title">換錢</div>
+      <div class="tip-text">機場匯率差，建議到達後去市區換匯所換。VK、G Exchange、Nakhonping 都是高評價選擇。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🐘</div>
+      <div class="tip-title">大象保育</div>
+      <div class="tip-text">選擇非騎乘、尊重動物的保育觀察體驗，保護動物也讓孩子深刻體驗。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">😺</div>
+      <div class="tip-title">貓咪咖啡</div>
+      <div class="tip-text">Mali Cat Cafe 是親子必訪，小孩最愛，記得事先查詢座位是否需要預約。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🛍️</div>
+      <div class="tip-title">逛市集</div>
+      <div class="tip-text">Jing Jai 週末人潮最旺，建議早點去！Baan Kang Wat 週一休館，注意避開。伴手禮、文創小物一次買齊。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🙏</div>
+      <div class="tip-title">寺廟禮儀</div>
+      <div class="tip-text">入廟前需脫鞋，保持安靜肅穆。Wat Umong 的地下隧道光線昏暗，建議帶手電筒或開手機燈。</div>
+    </div>
+  </div>
+</section>
+
+<footer>清邁 6天5夜慢活之旅 · 2026.05.07 — 05.12</footer>
+
+<!-- MAP MODAL -->
+<div class="modal-overlay" id="mapModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">景點名稱</div>
+        <div class="modal-subtitle" id="modalSubtitle">地址</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-map">
+      <iframe id="modalIframe" src="" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-info" id="modalInfo"></div>
+      <a class="modal-link" id="modalGoogleLink" href="#" target="_blank">在 Google Maps 開啟 →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const DAYS = [
+  {
+    day: 1, date: '5/7 (Thu)', color: '#7BBF6A', colorRgb: '123,191,106',
+    theme: '抵達清邁 · 暖身之旅',
+    emoji: '🛫',
+    note: '搭乘星宇航空 JX751｜13:20 → 16:20 直飛清邁。抵達後先搭計程車前往 Villa Alanna Check-in 休息，整理好後再搭 Grab / Bolt 前往尼曼區逛街！',
+    flight: { label: '星宇航空 JX751', detail: '13:20 → 16:20 直飛清邁', icon: '🛫' },
+    stops: [
+      {
+        name: 'Villa Alanna · Check-in',
+        type: '住宿 · 古城區旁',
+        icon: '🏨',
+        desc: '抵達清邁後先回飯店放行李、稍作休息，恢復體力後再出發探索尼曼區。',
+        rating: 4.8, ratingCount: 279,
+        lat: 18.7939209, lng: 98.97791559999999,
+        placeId: 'ChIJb7Ia4gU72jARTomXKksnfWY',
+        address: '12/3 Thanon Bunrueang Rit, Chiang Mai'
+      },
+      {
+        name: 'Nimman Road 尼曼區',
+        type: '文青商圈',
+        icon: '🛍️',
+        desc: '清邁最時髦的街區，文青小店、咖啡廳雲集，適合悠閒漫步打卡。',
+        rating: 4.6, ratingCount: 147,
+        lat: 18.7958248, lng: 98.9658116,
+        placeId: 'ChIJSeLRHWM62jARNbDigb8iLEo',
+        address: 'Nimmanahaeminda Road, Chiang Mai'
+      },
+      {
+        name: 'MAYA 瑪雅百貨',
+        type: '購物中心',
+        icon: '🏬',
+        desc: '現代化購物中心，美食廣場選擇豐富，頂樓可俯瞰清邁市景，買零食補貨超方便。',
+        rating: 4.4, ratingCount: 17375,
+        lat: 18.8018681, lng: 98.9676745,
+        placeId: 'ChIJC1o2yWE62jARfjKPh-dUjiQ',
+        address: '55/5 Huay Kaew Rd, Chiang Mai'
+      }
+    ]
+  },
+  {
+    day: 2, date: '5/8 (Fri)', color: '#5AAD7A', colorRgb: '90,173,122',
+    theme: '大象保育觀察日 · 全天行程',
+    emoji: '🐘',
+    note: '全天沉浸在倫理象群保育體驗中。近距離觀察了解大象習性，餵食、互動、沐浴體驗。晚餐可選古城餐廳或外送放鬆休息。',
+    stops: [
+      {
+        name: 'Elephant Nature Park',
+        type: '大象保育中心',
+        icon: '🐘',
+        desc: '清邁最知名的倫理象群保育公園。非騎乘體驗，尊重動物，近距離了解大象生態，適合全家大小。',
+        rating: 4.5, ratingCount: 599,
+        lat: 18.785012899999998, lng: 98.9929166,
+        placeId: 'ChIJc8S16aE62jARUXKBvK2Xu8I',
+        address: '1 Ratchamanka Rd, Chiang Mai'
+      }
+    ]
+  },
+  {
+    day: 3, date: '5/9 (Sat)', color: '#4AADA8', colorRgb: '74,173,168',
+    theme: '文青藝術 + 寺廟 + 質感晚餐',
+    emoji: '📷',
+    note: '上午前往文青藝術村逛手作小店，下午造訪神秘靜謐的森林寺廟，晚上享用 Michelin 推薦餐廳。',
+    stops: [
+      {
+        name: 'Baan Kang Wat 藝術村',
+        type: '文青市集',
+        icon: '🎨',
+        desc: '隱藏在清邁南部的迷人藝術聚落，古木老屋改建成手工藝品店與咖啡廳，超多拍照好角落！',
+        rating: 4.5, ratingCount: 6090,
+        lat: 18.7763256, lng: 98.9487285,
+        placeId: 'ChIJdxPPqzUx2jARn86GcuRsD1s',
+        address: '191-197 Soi Wat Umong, Chiang Mai'
+      },
+      {
+        name: 'Wat Umong 悟孟寺',
+        type: '佛教寺廟',
+        icon: '🏯',
+        desc: '清邁最古老神秘的隧道式寺廟之一，14世紀建造。森林靜謐中漫步地下隧道，感受百年禪意。',
+        rating: 4.6, ratingCount: 11031,
+        lat: 18.7827263, lng: 98.9521099,
+        placeId: 'ChIJnWhAb3A62jARWVBZnaOa7-0',
+        address: '135 Tambon Su Thep, Chiang Mai'
+      },
+      {
+        name: 'Baan Landai · 高評泰料',
+        type: 'Michelin 推薦餐廳',
+        icon: '🍽️',
+        desc: '米其林必比登推薦！精緻北泰料理，招牌紅酒燉豬肋排超絕，用餐環境典雅，藍染蘭納風格。',
+        rating: 4.5, ratingCount: 1363,
+        lat: 18.7940281, lng: 98.9874588,
+        placeId: 'ChIJn9ce4sk72jARiF6Gtvq0DV4',
+        address: '252 Prapokklao Road, Chiang Mai'
+      }
+    ]
+  },
+  {
+    day: 4, date: '5/10 (Sun)', color: '#8ABF5A', colorRgb: '138,191,90',
+    theme: '真心市集 Jing Jai · 吃吃喝喝日',
+    emoji: '🥤',
+    note: '週日是 Jing Jai 市集最熱鬧的時刻，在地文創市集、逛小店、吃小吃、喝飲品，下午繼續享用美食小吃，伴手禮一次買齊！',
+    stops: [
+      {
+        name: 'Jing Jai 真心市集',
+        type: '週末文創市集',
+        icon: '🛒',
+        desc: '清邁最大的在地創意市集！手工皮件、藍染、文創雜貨、有機農產，每週六日有大量擺攤，氣氛超棒。',
+        rating: 4.5, ratingCount: 11530,
+        lat: 18.8059844, lng: 98.99565469999999,
+        placeId: 'ChIJzfxey8A62jARBouRzNKxv58',
+        address: '46 Thanon Atsadathon, Chiang Mai'
+      }
+    ]
+  },
+  {
+    day: 5, date: '5/11 (Mon)', color: '#3DB88A', colorRgb: '61,184,138',
+    theme: '咖啡 + 泰式按摩療癒日',
+    emoji: '☕',
+    note: '上午到網美咖啡廳拍照打卡，下午享受專業泰式按摩放鬆舒壓，晚上換個口味吃中東料理。',
+    stops: [
+      {
+        name: 'Zohng Coffee',
+        type: '網美咖啡廳',
+        icon: '☕',
+        desc: '古城區熱門咖啡廳，工業風設計超適合拍照，提供精緻早午餐與手沖咖啡，口碑極佳。',
+        rating: 4.6, ratingCount: 1399,
+        lat: 18.789567599999998, lng: 98.9828084,
+        placeId: 'ChIJXZRWons72jAR26Ig85Kbg44',
+        address: '58 Intrawarorot Road Soi 2, Chiang Mai'
+      },
+      {
+        name: 'Hummus Garden',
+        type: '中東素食餐廳',
+        icon: '🥙',
+        desc: '藏在小巷裡的神秘中東餐廳，Google 評分高達 4.8！現做鷹嘴豆泥、法拉費塔，完全不同的清邁口味體驗。',
+        rating: 4.8, ratingCount: 4398,
+        lat: 18.7749381, lng: 98.9994335,
+        placeId: 'ChIJaRjpEbs72jARUhw5hedocOI',
+        address: '11/1 Charoen Prathet Lane 12, Chiang Mai'
+      }
+    ]
+  },
+  {
+    day: 6, date: '5/12 (Tue)', color: '#6EBF9A', colorRgb: '110,191,154',
+    theme: '收尾 + 貓咪咖啡 + 回程',
+    emoji: '😸',
+    note: '悠閒吃早餐後整理行李退房，下午前往貓咪咖啡廳與毛孩話別，最後前往機場搭乘星宇航空 JX752 回台灣，滿滿回憶，期待下次再來！',
+    flightAfter: { label: '星宇航空 JX752', detail: '17:20 → 22:10 當天抵達台灣', icon: '🛬' },
+    stops: [
+      {
+        name: 'Mali Cat Cafe',
+        type: '貓咪咖啡廳',
+        icon: '🐱',
+        desc: '尼曼區最夯的貓咪咖啡！環境整潔寬敞，貓咪健康可愛，250 泰銖含一杯飲品，小孩最愛的清邁收尾！',
+        rating: 4.7, ratingCount: 1488,
+        lat: 18.800660999999998, lng: 98.96781849999999,
+        placeId: 'ChIJEab8f1M72jARS90pzESN7P0',
+        address: 'Nimman Road, Chiang Mai'
+      }
+    ]
+  }
+];
+
+function starsHtml(rating) {
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+}
+
+function buildTimeline() {
+  const container = document.getElementById('timeline');
+  DAYS.forEach((day, i) => {
+    const block = document.createElement('div');
+    block.className = 'day-block';
+    block.style.setProperty('--color', day.color);
+    block.style.setProperty('--color-rgb', day.colorRgb);
+    block.style.transitionDelay = `${i * 0.08}s`;
+
+    const stopPills = day.stops.map(s => `<span class="stop-pill">${s.name.split('·')[0].trim()}</span>`).join('');
+
+    const flightHtml = day.flight ? `
+      <div class="flight-banner">
+        <span class="flight-icon">${day.flight.icon}</span>
+        <div class="flight-detail">
+          <strong>${day.flight.label}</strong> &nbsp;${day.flight.detail}
+        </div>
+      </div>` : '';
+
+    const flightAfterHtml = day.flightAfter ? `
+      <div class="flight-banner" style="margin-top:16px;margin-bottom:0">
+        <span class="flight-icon">${day.flightAfter.icon}</span>
+        <div class="flight-detail">
+          <strong>${day.flightAfter.label}</strong> &nbsp;${day.flightAfter.detail}
+        </div>
+      </div>` : '';
+
+    const stopsGrid = day.stops.map(s => `
+      <div class="stop-card" ${s.placeId ? `onclick="openModal('${s.name}','${s.address}',${s.lat},${s.lng},'${s.rating}',${s.ratingCount},'${s.placeId}')"` : 'style="cursor:default"'}>
+        <div class="stop-card-top">
+          <div class="stop-icon">${s.icon}</div>
+          <div class="stop-info">
+            <div class="stop-name">${s.name}</div>
+            <div class="stop-type">${s.type}</div>
+          </div>
+        </div>
+        <div class="stop-desc">${s.desc}</div>
+        <div class="stop-rating">
+          <span class="rating-stars">${s.rating ? starsHtml(s.rating) : ''}</span>
+          <span class="rating-num">${s.rating ? `${s.rating} (${s.ratingCount.toLocaleString()}則)` : ''}</span>
+          ${s.placeId ? '<span class="map-btn">📍 地圖</span>' : ''}
+        </div>
+      </div>`).join('');
+
+    block.innerHTML = `
+      <div class="day-card" id="daycard-${i}" onclick="toggleDay(${i})">
+        <div class="card-header">
+          <div class="day-num">
+            <span class="dn-label">Day</span>
+            <span class="dn-number">${day.day}</span>
+          </div>
+          <div class="card-day-info">
+            <div class="card-day-tag">Day ${day.day} · ${day.date}</div>
+          </div>
+          <div class="card-title-area">
+            <div class="card-theme">${day.emoji} ${day.theme}</div>
+            <div class="card-stops">${stopPills}</div>
+          </div>
+          <div class="card-toggle">+</div>
+        </div>
+        <div class="card-panel">
+          <div class="panel-inner">
+            ${flightHtml}
+            <p class="day-note">${day.note}</p>
+            <div style="margin-top:16px">
+              <div class="stops-grid">${stopsGrid}</div>
+            </div>
+            ${flightAfterHtml}
+          </div>
+        </div>
+      </div>`;
+
+    container.appendChild(block);
+  });
+
+  // Intersection Observer
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.day-block').forEach(el => obs.observe(el));
+}
+
+function toggleDay(i) {
+  const card = document.getElementById(`daycard-${i}`);
+  const wasActive = card.classList.contains('active');
+  document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
+  if (!wasActive) card.classList.add('active');
+}
+
+let currentPlace = null;
+function openModal(name, address, lat, lng, rating, count, placeId) {
+  const modal = document.getElementById('mapModal');
+  document.getElementById('modalTitle').textContent = name;
+  document.getElementById('modalSubtitle').textContent = address;
+  document.getElementById('modalInfo').innerHTML = `<span class="rating">★ ${rating}</span> &nbsp;·&nbsp; ${parseInt(count).toLocaleString()} 則評論`;
+  const gmUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${placeId}`;
+  document.getElementById('modalGoogleLink').href = gmUrl;
+  document.getElementById('modalIframe').src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&q=place_id:${placeId}&zoom=16`;
+  modal.classList.add('open');
+  event.stopPropagation();
+}
+
+function closeModal() {
+  document.getElementById('mapModal').classList.remove('open');
+  setTimeout(() => { document.getElementById('modalIframe').src = ''; }, 300);
+}
+
+document.getElementById('mapModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+buildTimeline();
+
+// EXCHANGE DATA
+const EXCHANGES = [
+  {
+    rank: 1, name: 'VK Money Exchange',
+    hours: '09:00–18:00', location: '古城區 Ratvithi Rd',
+    badge: '匯率不錯 · 位置便利', badgeType: '',
+    rating: 4.7, ratingCount: 186,
+    lat: 18.7903554, lng: 98.9930461,
+    placeId: 'ChIJtcTn5KI62jARCW07OQXL_U8',
+    address: '1/3 Ratvithi Rd, Chiang Mai'
+  },
+  {
+    rank: 2, name: 'SK Exchange',
+    hours: '09:00–17:00（週日休息）', location: '夜市附近',
+    badge: '在地人常用 · 匯率穩定', badgeType: '',
+    rating: null, ratingCount: null,
+    lat: 18.7893, lng: 98.9989,
+    placeId: null,
+    address: '夜市附近，Chiang Mai'
+  },
+  {
+    rank: 3, name: 'G Exchange',
+    hours: '09:00–22:00', location: 'Loi Kroh Rd',
+    badge: '營業時間長 · 晚上也能換匯', badgeType: '',
+    rating: 4.8, ratingCount: 112,
+    lat: 18.7849468, lng: 98.9936872,
+    placeId: 'ChIJy1QnFzc72jARBOzC59qmuLE',
+    address: '10/1 Loi Kroh Rd, Chiang Mai'
+  },
+  {
+    rank: 4, name: 'Siri Money Exchange',
+    hours: '09:00–22:00', location: '古城區附近',
+    badge: '營業時間長 · 晚上也能換匯', badgeType: '',
+    rating: null, ratingCount: null,
+    lat: 18.7876, lng: 98.9900,
+    placeId: null,
+    address: 'Chiang Mai Old City'
+  },
+  {
+    rank: 5, name: 'Nakhonping Exchange',
+    hours: '09:00–22:00', location: '夜市附近 Loi Kroh Rd',
+    badge: '匯率高 · 零手續費', badgeType: '',
+    rating: 4.7, ratingCount: 174,
+    lat: 18.784231, lng: 98.9980535,
+    placeId: 'ChIJg0biMaE62jARepIN9ujHUJY',
+    address: '44/6 Loi Kroh Rd, Chiang Mai'
+  },
+  {
+    rank: 6, name: 'Mr. Pierre Exchange',
+    hours: '09:00–18:00（週日休息）', location: '古城區',
+    badge: '可先用 LINE 詢問匯率', badgeType: 'line',
+    rating: null, ratingCount: null,
+    lat: 18.7882, lng: 98.9895,
+    placeId: null,
+    address: 'Chiang Mai'
+  },
+  {
+    rank: 7, name: 'Super Money',
+    hours: '08:30–17:30', location: 'Loi Kroh Rd',
+    badge: '可先用 LINE 詢問匯率', badgeType: 'line',
+    rating: 4.1, ratingCount: 257,
+    lat: 18.7845427, lng: 98.99523020000001,
+    placeId: 'ChIJ21K8MKY62jARBJ0aMtAUo4E',
+    address: '34/4 Loi Kroh Rd, Chiang Mai'
+  }
+];
+
+function buildExchange() {
+  const grid = document.getElementById('exchangeGrid');
+  EXCHANGES.forEach(ex => {
+    const card = document.createElement('div');
+    card.className = 'exchange-card';
+    if (ex.placeId) {
+      card.onclick = () => openModal(ex.name, ex.address, ex.lat, ex.lng, ex.rating || '–', ex.ratingCount || 0, ex.placeId);
+    }
+    const ratingHtml = ex.rating
+      ? `<span class="exchange-rating">★ ${ex.rating}</span><span class="exchange-rating-count">(${ex.ratingCount}則)</span>`
+      : `<span class="exchange-rating-count" style="color:rgba(250,245,236,0.25)">尚無評分資料</span>`;
+    const mapHint = ex.placeId ? `<span class="map-btn" style="font-size:0.58rem">📍 地圖</span>` : '';
+    card.innerHTML = `
+      <div class="exchange-card-top">
+        <div class="exchange-rank">${ex.rank}</div>
+        <div>
+          <div class="exchange-name">${ex.name}</div>
+          <div class="exchange-badge ${ex.badgeType}">${ex.badge}</div>
+        </div>
+      </div>
+      <div class="exchange-meta">
+        <div><span>🕐</span>${ex.hours}</div>
+        ${ex.location ? `<div><span>📍</span>${ex.location}</div>` : ''}
+      </div>
+      <div class="exchange-footer">
+        <div>${ratingHtml}</div>
+        ${mapHint}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+buildExchange();
+</script>
+</body>
+</html>
